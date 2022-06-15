@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 
 const reservationSchema = mongoose.Schema({
     user: {type: mongoose.Schema.ObjectId, ref:'User'},
-    date: String,
+    date: Date,
     roomType: String,
     advance: Number,
     status: String,

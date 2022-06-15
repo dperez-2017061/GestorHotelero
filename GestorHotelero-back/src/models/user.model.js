@@ -10,7 +10,7 @@ const userSchema = mongoose.Schema({
     phone: String,
     email: String,
     role: String,
-    hotels: [
+    visitedHotels: [
         {
             hotel: {type: mongoose.Schema.ObjectId, ref:'Hotel'}
         }
