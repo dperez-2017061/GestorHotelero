@@ -14,6 +14,16 @@ const userSchema = mongoose.Schema({
         {
             hotel: {type: mongoose.Schema.ObjectId, ref:'Hotel'}
         }
+    ],
+    events:[ 
+        {
+            event: {type: mongoose.Schema.ObjectId, ref:'Event'}
+        }
+    ],
+    reservations:[
+        {
+            reservation: {type: mongoose.Schema.ObjectId, ref:'Reservation'}
+        }
     ]
 });
 

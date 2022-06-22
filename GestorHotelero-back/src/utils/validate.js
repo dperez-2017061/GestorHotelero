@@ -41,16 +41,39 @@ exports.checkPassword = (password, hash)=>{
         return err;
     }
 }
+
 exports.checkParams = async (params)=>{
-    if(Object.entries(params).length === 0) return false
+    try{
+        if(Object.entries(params).length === 0) return false
     return true
+    }catch(err){
+        console.log(err);
+        return err;
+    }
 }
+
 exports.checkUpdate = async (params)=>{
-    if(params.password || 
-        params.role ||
-        params.user
+    try{
+        if(
+            params.password || 
+            params.role ||
+            params.user
         ) return false;
-        
-    return true;
-    
+            
+        return true;
+    }catch(err){
+        console.log(err);
+        return err;
+    }
+}
+
+exports.deleteSensitiveData = async(data)=>{
+    try{
+        delete data.administrator.password;
+        delete data.administrator.role;
+        delete data.administrator.visitedHotels;
+    }catch(err){
+        console.log(err);
+        return err;
+    }
 }

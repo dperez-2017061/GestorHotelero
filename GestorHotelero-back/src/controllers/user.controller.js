@@ -9,7 +9,7 @@ const { validateData, encrypt, checkPassword, checkUpdate, checkPermission, chec
 exports.register = async(req,res)=>{
     try{
         let params = req.body;
-        let data ={
+        let data = {
             username: params.username,
             password: params.password,
             name: params.name,
@@ -30,7 +30,7 @@ exports.register = async(req,res)=>{
         return res.send({message: 'User created successfully'});
     }catch(err){
         console.log(err);
-        return res.status(500).send({err, message: 'Failed to save user'}) ;
+        return res.status(500).send({err, message: 'Error saving user'}) ;
     }
 }
 
@@ -54,11 +54,12 @@ exports.login = async(req,res)=>{
         }else return res.status(401).send({message: 'Invalid credentials'});
     }catch(err){
         console.log(err);
-        return res.status(500).send({err, message: 'Failed to login'})
+        return res.status(500).send({err, message: 'Error logging in'})
     }
 }
 
-//FUNCIONES CLIENTE
+//FUNCIONES PARA CLIENTE
+
 exports.update = async(req, res)=>{
     try{
         let userId = req.params.id;
@@ -82,7 +83,7 @@ exports.update = async(req, res)=>{
         return res.send({user:userUpdated, message: 'User updated'});
     }catch(err){
         console.log(err);
-        return res.status(500).send({err, message: 'Failed to update user'});
+        return res.status(500).send({err, message: 'Error updating user'});
     }
 }
 
@@ -102,6 +103,8 @@ exports.delete = async(req, res)=>{
         return res.status(500).send({message: 'Error removing account'});
     }
 }
+
+//FUNCIONES PARA ADMINISTRADOR DE LA APLICACIÓN
 
 exports.getUsers = async(req,res)=>{
     try{
