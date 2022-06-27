@@ -18,4 +18,8 @@ api.delete('/delete/:id', mdAuth.ensureAuth, userController.delete);
 
 api.get('/getUsers', [mdAuth.ensureAuth, mdAuth.isAdmin], userController.getUsers);
 
+//FUNCIONES PARA ADMINISTRADOR DEL HOTEL
+
+api.post('/searchGuest', [mdAuth.ensureAuth, mdAuth.isAdminH], userController.searchGuest);
+
 module.exports = api;

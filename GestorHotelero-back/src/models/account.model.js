@@ -15,7 +15,7 @@ const accountSchema = mongoose.Schema({
             ],
             services:[
                 {
-                    service: {type: mongoose.Schema.ObjectId, ref:'Service'},
+                    service: String,
                     price: Number
                 }
             ],

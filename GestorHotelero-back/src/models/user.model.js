@@ -10,6 +10,7 @@ const userSchema = mongoose.Schema({
     phone: String,
     email: String,
     role: String,
+    hotel: {type: mongoose.Schema.ObjectId, ref:'Hotel'},
     visitedHotels: [
         {
             hotel: {type: mongoose.Schema.ObjectId, ref:'Hotel'}

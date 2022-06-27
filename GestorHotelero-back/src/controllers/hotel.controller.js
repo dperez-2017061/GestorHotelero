@@ -1,6 +1,7 @@
 'use strict'
 
 const Hotel = require('../models/hotel.model');
+const User = require('../models/user.model');
 const { validateData, deleteSensitiveData } = require('../utils/validate');
 
 //FUNCIONES PARA ADMINISTRADOR DE LA APLICACIÓN
@@ -19,6 +20,8 @@ exports.createHotel = async (req,res)=>{
 
         let msg =  validateData(data);
         if(msg) return res.status(400).send(msg);
+        let userExist = await User.findOne({_id: data.administrator});
+        if(userExist.role != 'ADMINHOTEL') return res.status(400).send({message: 'The user is not a hotel administrator'})
         let nameExist = await Hotel.findOne({name: data.name});
         if(nameExist) return res.status(400).send({message: `Hotel ${data.name} already exist`});
         let addressExist = await Hotel.findOne({address: data.address});
@@ -89,7 +92,7 @@ exports.searchHotelByName = async(req,res)=>{
         
         let msg = validateData(data);
         if(msg) return res.status(400).send(msg);
-        let hotels = await Hotel.find({name: {$regex: params.name, $options: 'i'}}).lean().populate('administrator');
+        let hotels = await Hotel.find({name: {$regex: data.name, $options: 'i'}}).lean().populate('administrator');
         for(let hotel of hotels){
             await deleteSensitiveData(hotel);
         };
@@ -107,7 +110,7 @@ exports.searchHotelByAddress = async(req,res)=>{
         
         let msg = validateData(data);
         if(msg) return res.status(400).send(msg);
-        let hotels = await Hotel.find({address: {$regex: params.address, $options: 'i'}}).lean().populate('administrator');
+        let hotels = await Hotel.find({address: {$regex: data.address, $options: 'i'}}).lean().populate('administrator');
         for(let hotel of hotels){
             await deleteSensitiveData(hotel);
         };

@@ -2,6 +2,7 @@
 
 const User = require('../models/user.model');
 const jwt = require('../services/jwt');
+const Hotel = require('../models/hotel.model');
 const { validateData, encrypt, checkPassword, checkUpdate, checkPermission, checkParams } = require('../utils/validate');
 
 //FUNCIONES PÚBLICAS
@@ -101,6 +102,25 @@ exports.delete = async(req, res)=>{
     }catch(err){
         console.log(err);
         return res.status(500).send({message: 'Error removing account'});
+    }
+}
+
+//FUNCIONES PARA ADMINISTRADOR DEL HOTEL
+
+exports.searchGuest = async(req,res)=>{
+    try{
+        let params = req.body;
+        let data = {username: params.username};
+        let msg = validateData(data);
+        if(msg) return res.status(400).send(msg);
+
+        let hotel = await Hotel.findOne({administrator: req.user.sub});
+        if(!hotel) return res.send({});
+        let users = await User.find({hotel: hotel._id, username: {$regex: data.username, $options: 'i'}}).lean().populate('hotel');
+        return res.send({users});
+    }catch(err){
+        console.log(err);
+        return res.status(500).send({message: 'Error searching guest'})
     }
 }
 

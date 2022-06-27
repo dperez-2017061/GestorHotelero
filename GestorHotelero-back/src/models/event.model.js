@@ -9,7 +9,7 @@ const eventSchema = mongoose.Schema({
     cost: Number,
     extras: [
         {
-            service: {type: mongoose.Schema.ObjectId, ref:'Service'},
+            service: String,
             price: Number
         }
     ],

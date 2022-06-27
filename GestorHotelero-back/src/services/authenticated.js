@@ -31,3 +31,13 @@ exports.isAdmin = async (req, res, next)=>{
         return err;
     }
 }
+
+exports.isAdminH = async (req, res, next)=>{
+    try{
+        if(req.user.role === 'ADMINHOTEL') return next();
+        else return res.status(403).send({message: 'User unauthorized'});
+    }catch(err){
+        console.log(err);
+        return err;
+    }
+}
