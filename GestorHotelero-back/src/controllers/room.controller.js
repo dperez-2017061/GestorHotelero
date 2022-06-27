@@ -12,9 +12,9 @@ exports.addRoom = async(req,res)=>{
         let data = {
             NoRoom: params.NoRoom,
             description: params.description,
-            services: params.services.replace(/\s+/g, ''),
+            services: params.services,
             type: params.type,
-            status: 'available',
+            status: 'AVAILABLE',
             price: params.price,
             hotel: params.hotel
         }
@@ -23,7 +23,7 @@ exports.addRoom = async(req,res)=>{
         if(msg) return res.status(400).send(msg);
         let hotelExist = await Hotel.findOne({_id: data.hotel});
         if(!hotelExist) return res.status(400).send({message: 'Hotel not found'});
-        
+        data.services = data.services.replace(/\s+/g, '');
         if(data.services.includes(',')){
             let services=[];
             data.services = data.services.split(',');
@@ -48,7 +48,12 @@ exports.addRoom = async(req,res)=>{
 
 exports.getRooms = async(req,res)=>{
     try{
-        let rooms = await Room.find({hotel: req.params.id}).lean().populate('hotel');
+        let hotelId = req.params.idH;
+        let hotelExist = await Hotel.findOne({_id: hotelId});
+        if(!hotelExist) return res.status(400).send({message: 'Hotel not found'});
+        let rooms = await Room.find({hotel: hotelId})
+        .lean()
+        .populate('hotel');
 
         return res.send({rooms});
     }catch(err){
@@ -61,9 +66,14 @@ exports.getRooms = async(req,res)=>{
 
 exports.availableRooms = async(req,res)=>{
     try{
-        let rooms = await Room.find({hotel: req.params.id, status: 'available'}).lean().populate('hotel');
+        let hotelId = req.params.idH;
+        let hotelExist = await Hotel.findOne({_id: hotelId});
+        if(!hotelExist) return res.status(400).send({message: 'Hotel not found'});
+        let rooms = await Room.find({hotel: hotelId, status: 'AVAILABLE'})
+        .lean()
+        .populate('hotel');
 
-        return res.send({availableRooms: rooms.length});
+        return res.send({availableRooms: rooms});
     }catch(err){
         console.log(err);
         return res.status(500).send({err, message: 'Error getting available rooms'}) ;

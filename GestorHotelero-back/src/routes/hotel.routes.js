@@ -8,7 +8,7 @@ const hotelController = require('../controllers/hotel.controller');
 //FUNCIONES PARA ADMINISTRADOR DE LA APLICACIÓN
 
 api.post('/createHotel', [mdAuth.ensureAuth, mdAuth.isAdmin], hotelController.createHotel);
-
+api.get('/mostPopular', [mdAuth.ensureAuth, mdAuth.isAdmin], hotelController.mostPopular);
 //FUNCIONES PARA CLIENTE
 
 api.get('/getHotel/:idH', hotelController.getHotel);

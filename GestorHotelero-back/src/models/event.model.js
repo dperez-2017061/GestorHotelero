@@ -5,15 +5,16 @@ const mongoose = require('mongoose');
 const eventSchema = mongoose.Schema({
     user: {type: mongoose.Schema.ObjectId, ref:'User'},
     name: String,
-    schedule: String,
-    cost: Number,
+    type: String,
+    startDate: String,
+    finishDate: String,
     extras: [
         {
             service: String,
             price: Number
         }
     ],
-    type: String,
+    cost: Number,
     hotel: {type: mongoose.Schema.ObjectId, ref:'Hotel'}
 });
 

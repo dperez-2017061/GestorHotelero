@@ -6,7 +6,7 @@ const invoiceSchema = mongoose.Schema({
     user: {type: mongoose.Schema.ObjectId, ref:'User'},
     days: [
         {
-            lodging: Number,
+            room: {type: mongoose.Schema.ObjectId, ref:'Room'},
             events:[
                 {
                     event: {type: mongoose.Schema.ObjectId, ref:'Event'},
@@ -20,7 +20,7 @@ const invoiceSchema = mongoose.Schema({
                 }
             ],
             subTotal: Number
-    }
+        }
     ],
     total: Number
 });

@@ -1,8 +1,10 @@
 'use strict'
 
 const Hotel = require('../models/hotel.model');
+const Reservation = require('../models/reservation.model');
+const Room = require('../models/room.model');
 const User = require('../models/user.model');
-const { validateData, deleteSensitiveData } = require('../utils/validate');
+const { validateData, deleteSensitiveDataAdmin } = require('../utils/validate');
 
 //FUNCIONES PARA ADMINISTRADOR DE LA APLICACIÓN
 
@@ -59,7 +61,7 @@ exports.getHotel = async(req,res)=>{
 
         let hotel = await Hotel.findOne({_id: hotelId}).lean().populate('administrator');
         if(!hotel) return res.status(400).send({message: 'Hotel not found'})
-        deleteSensitiveData(hotel);
+        deleteSensitiveDataAdmin(hotel);
         
         return res.send({hotel});
     }catch(err){
@@ -76,7 +78,7 @@ exports.getHotels = async(req,res)=>{
         let hotels = await Hotel.find().lean().populate('administrator');
 
         for(let hotel of hotels){
-            await deleteSensitiveData(hotel);
+            await deleteSensitiveDataAdmin(hotel);
         };
         return res.send({hotels});
     }catch(err){
@@ -94,7 +96,7 @@ exports.searchHotelByName = async(req,res)=>{
         if(msg) return res.status(400).send(msg);
         let hotels = await Hotel.find({name: {$regex: data.name, $options: 'i'}}).lean().populate('administrator');
         for(let hotel of hotels){
-            await deleteSensitiveData(hotel);
+            await deleteSensitiveDataAdmin(hotel);
         };
         return res.send({hotels});
     }catch(err){
@@ -112,7 +114,7 @@ exports.searchHotelByAddress = async(req,res)=>{
         if(msg) return res.status(400).send(msg);
         let hotels = await Hotel.find({address: {$regex: data.address, $options: 'i'}}).lean().populate('administrator');
         for(let hotel of hotels){
-            await deleteSensitiveData(hotel);
+            await deleteSensitiveDataAdmin(hotel);
         };
         return res.send({hotels});
     }catch(err){
@@ -120,3 +122,26 @@ exports.searchHotelByAddress = async(req,res)=>{
         return res.status(500).send({err, message: 'Error searching hotels'});
     }
 };
+
+exports.mostPopular = async(req,res)=>{
+    try{
+        let hotels = await Hotel.find();
+        let sorts = [];
+        for(let hotel of hotels){
+            let reservations = await Reservation.find({status:'FINISHED', hotel: hotel._id});
+            sorts.push({hotel, reservations:reservations.length});
+        }
+
+        sorts.sort((a,b)=>{
+            return b.reservations - a.reservations
+        });
+        for(let sort of sorts){
+            delete sort.reservations
+        }
+
+        return res.send({hotels:sorts});
+    }catch(err){
+        console.log(err);
+        return res.status(500).send({err, message: 'Error getting hotels'});
+    }
+}

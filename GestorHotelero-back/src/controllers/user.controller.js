@@ -49,7 +49,6 @@ exports.login = async(req,res)=>{
         if(userExist && await checkPassword(params.password, userExist.password)){
             let token = await jwt.createToken(userExist)
             delete userExist.password;
-            delete userExist.role;
 
             return res.send({token, user:userExist, message: 'Login successfully'});
         }else return res.status(401).send({message: 'Invalid credentials'});
@@ -115,7 +114,7 @@ exports.searchGuest = async(req,res)=>{
         if(msg) return res.status(400).send(msg);
 
         let hotel = await Hotel.findOne({administrator: req.user.sub});
-        if(!hotel) return res.send({});
+        if(!hotel) return res.send({message: 'Are not an admin hotel'});
         let users = await User.find({hotel: hotel._id, username: {$regex: data.username, $options: 'i'}}).lean().populate('hotel');
         return res.send({users});
     }catch(err){

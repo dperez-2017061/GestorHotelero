@@ -67,11 +67,27 @@ exports.checkUpdate = async (params)=>{
     }
 }
 
-exports.deleteSensitiveData = async(data)=>{
+exports.deleteSensitiveDataAdmin = async(data)=>{
     try{
         delete data.administrator.password;
         delete data.administrator.role;
         delete data.administrator.visitedHotels;
+        delete data.administrator.events;
+        delete data.administrator.reservations;
+        return data;
+    }catch(err){
+        console.log(err);
+        return err;
+    }
+}
+exports.deleteSensitiveData = async(data)=>{
+    try{
+        delete data.user.password;
+        delete data.user.role;
+        delete data.user.visitedHotels;
+        delete data.user.events;
+        delete data.user.reservations;
+        return data;
     }catch(err){
         console.log(err);
         return err;

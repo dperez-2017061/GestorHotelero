@@ -5,9 +5,8 @@ const moment = require('moment');
 const secretKey = 'Grupo4';
 
 exports.ensureAuth = (req,res,next)=>{
-    if(!req.headers.authorization){
-        return res.status(403).send({message: 'The request does not contain the authorization header'}); 
-    }else{
+    if(!req.headers.authorization) return res.status(403).send({message: 'The request does not contain the authorization header'}); 
+    
         try{
             var token = req.headers.authorization.replace(/['"]+/g, '');
             var payload = jwt.decode(token, secretKey);
@@ -19,7 +18,7 @@ exports.ensureAuth = (req,res,next)=>{
         }
         req.user = payload;
         next();
-    }
+    
 };
 
 exports.isAdmin = async (req, res, next)=>{

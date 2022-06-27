@@ -9,9 +9,9 @@ const roomController = require('../controllers/room.controller');
 
 api.post('/addRoom', [mdAuth.ensureAuth, mdAuth.isAdmin], roomController.addRoom);
 
-//RUTAS CLIENTE
+//RUTAS PARA CLIENTE
 
-api.get('/getRooms/:id', mdAuth.ensureAuth, roomController.getRooms);
-api.get('/availableRooms/:id', [mdAuth.ensureAuth, mdAuth.isAdminH], roomController.availableRooms);
+api.get('/getRooms/:idH', mdAuth.ensureAuth, roomController.getRooms);
+api.get('/availableRooms/:idH', [mdAuth.ensureAuth, mdAuth.isAdminH], roomController.availableRooms);
 
 module.exports = api;
