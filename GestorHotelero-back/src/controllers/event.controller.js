@@ -1,17 +1,16 @@
 'use strict'
 
+const moment = require('moment');
 const Event = require('../models/event.model');
-const { validateData, deleteSensitiveData } = require('../utils/validate');
 const User = require('../models/user.model');
 const Hotel = require('../models/hotel.model');
-const moment = require('moment');
+const { validateData, deleteSensitiveData } = require('../utils/validate');
 
 //FUNCIONES PARA ADMINHOTEL
 
 exports.createEvent = async (req,res)=>{
     try{
         let params = req.body;
-        let options = {hour:'numeric',minute:'numeric'};
         let data ={
             user: params.user,
             name: params.name,
@@ -29,21 +28,21 @@ exports.createEvent = async (req,res)=>{
         let userExist = await User.findOne({_id: data.user});
         if(!userExist) return res.status(400).send({message: 'User not found'});
         let hotel = await Hotel.findOne({administrator: req.user.sub});
-        if(!hotel) return res.status(400).send({message: 'Are not an admin hotel'});
+        if(!hotel) return res.status(400).send({message: 'Has not been assigned a hotel'});
         data.hotel = hotel._id;
 
         let nameExist = await Event.findOne({name: data.name});
         if(nameExist) return res.status(400).send({message: `Event ${data.name} already exist`});
-        data.startDate = new Date('2022/'+ params.startDate).toLocaleDateString('es-ES',options);
-        data.finishDate = new Date('2022/'+ params.finishDate).toLocaleDateString('es-ES',options);
-        let dateStart = moment(moment(data.startDate,'DD-MM-YYYY, hh:mm').format()).unix();
-        let dateFinish = moment(moment(data.finishDate,'DD-MM-YYYY, hh:mm').format()).unix();
+        data.startDate = new Date('2022/'+ params.startDate);
+        data.finishDate = new Date('2022/'+ params.finishDate);
+        let dateStart = moment(data.startDate).unix();
+        let dateFinish = moment(data.finishDate).unix();
         if(dateStart >= dateFinish || dateStart < moment().unix()) return res.status(400).send({message: 'Equal dates or invalid start date'});
 
         let events = await Event.find({hotel: data.hotel});
         for(let event of events){
-            let finishReservation = moment(moment(event.finishDate,'DD-MM-YYYY, hh:mm').format()).unix();
-            let startReservation = moment(moment(event.startDate,'DD-MM-YYYY, hh:mm').format()).unix();
+            let finishReservation = moment(event.finishDate).unix();
+            let startReservation = moment(event.startDate).unix();
             if(
                 startReservation == dateStart ||
                 finishReservation == dateFinish
@@ -104,6 +103,7 @@ exports.getEvents = async(req,res)=>{
         .lean()
         .populate('user')
         .populate('hotel');
+
         for(let event of events){
             await deleteSensitiveData(event);
         }

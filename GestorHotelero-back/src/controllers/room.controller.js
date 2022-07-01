@@ -2,7 +2,7 @@
 
 const Room = require('../models/room.model');
 const Hotel = require('../models/hotel.model');
-const { validateData, checkPermission } = require('../utils/validate');
+const { validateData } = require('../utils/validate');
 
 //FUNCIONES PARA ADMINISTRADOR DE LA APLICACIÓN
 
@@ -10,11 +10,11 @@ exports.addRoom = async(req,res)=>{
     try{
         let params = req.body;
         let data = {
-            NoRoom: params.NoRoom,
+            noRoom: params.noRoom,
             description: params.description,
             services: params.services,
             type: params.type,
-            status: 'AVAILABLE',
+            available: true,
             price: params.price,
             hotel: params.hotel
         }
@@ -23,6 +23,8 @@ exports.addRoom = async(req,res)=>{
         if(msg) return res.status(400).send(msg);
         let hotelExist = await Hotel.findOne({_id: data.hotel});
         if(!hotelExist) return res.status(400).send({message: 'Hotel not found'});
+        let noRoomExist = await Room.findOne({noRoom: data.noRoom});
+        if(noRoomExist) return res.status(400).send({message: `Room with number ${data.noRoom} already exist`});
         data.services = data.services.replace(/\s+/g, '');
         if(data.services.includes(',')){
             let services=[];
@@ -66,10 +68,9 @@ exports.getRooms = async(req,res)=>{
 
 exports.availableRooms = async(req,res)=>{
     try{
-        let hotelId = req.params.idH;
-        let hotelExist = await Hotel.findOne({_id: hotelId});
-        if(!hotelExist) return res.status(400).send({message: 'Hotel not found'});
-        let rooms = await Room.find({hotel: hotelId, status: 'AVAILABLE'})
+        let hotelExist = await Hotel.findOne({administrator: req.user.sub});
+        if(!hotelExist) return res.status(400).send({message: 'Has not been assigned a hotel'});
+        let rooms = await Room.find({hotel: hotelExist._id, available: true})
         .lean()
         .populate('hotel');
 

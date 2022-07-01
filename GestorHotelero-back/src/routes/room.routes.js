@@ -12,6 +12,9 @@ api.post('/addRoom', [mdAuth.ensureAuth, mdAuth.isAdmin], roomController.addRoom
 //RUTAS PARA CLIENTE
 
 api.get('/getRooms/:idH', mdAuth.ensureAuth, roomController.getRooms);
-api.get('/availableRooms/:idH', [mdAuth.ensureAuth, mdAuth.isAdminH], roomController.availableRooms);
+
+//FUNCIONES PARA ADMINISTRADOR DEL HOTEL
+
+api.get('/availableRooms', [mdAuth.ensureAuth, mdAuth.isAdminH], roomController.availableRooms);
 
 module.exports = api;

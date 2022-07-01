@@ -13,6 +13,7 @@ api.post('/login', userController.login);
 
 api.put('/update/:id', mdAuth.ensureAuth, userController.update);
 api.delete('/delete/:id', mdAuth.ensureAuth, userController.delete);
+api.get('/toInvoice/:idR', mdAuth.ensureAuth, userController.toInvoice);
 
 //RUTAS PARA ADMINISTRADOR DE LA APLICACIÓN
 

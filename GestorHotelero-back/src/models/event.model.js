@@ -6,8 +6,8 @@ const eventSchema = mongoose.Schema({
     user: {type: mongoose.Schema.ObjectId, ref:'User'},
     name: String,
     type: String,
-    startDate: String,
-    finishDate: String,
+    startDate: Date,
+    finishDate: Date,
     extras: [
         {
             service: String,

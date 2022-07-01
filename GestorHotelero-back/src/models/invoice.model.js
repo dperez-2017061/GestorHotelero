@@ -3,25 +3,18 @@
 const mongoose = require('mongoose');
 
 const invoiceSchema = mongoose.Schema({
+    date: Date,
     user: {type: mongoose.Schema.ObjectId, ref:'User'},
-    days: [
+    hotel: {type: mongoose.Schema.ObjectId, ref:'Hotel'},
+    room: {type: mongoose.Schema.ObjectId, ref:'Room'},
+    price: String,
+    subTotal: Number,
+    events:[
         {
-            room: {type: mongoose.Schema.ObjectId, ref:'Room'},
-            events:[
-                {
-                    event: {type: mongoose.Schema.ObjectId, ref:'Event'},
-                    price: Number
-                }
-            ],
-            services:[
-                {
-                    service: String,
-                    price: Number
-                }
-            ],
-            subTotal: Number
+            event: {type: mongoose.Schema.ObjectId, ref:'Event'},
         }
     ],
+    subTotalEvents: Number,
     total: Number
 });
 

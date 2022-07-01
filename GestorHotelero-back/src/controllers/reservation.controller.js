@@ -1,17 +1,16 @@
 'use strict'
 
 const Reservation = require('../models/reservation.model');
-const { validateData, deleteSensitiveData } = require('../utils/validate');
 const moment = require('moment')
 const Room = require('../models/room.model');
 const Hotel = require('../models/hotel.model');
+const { validateData, deleteSensitiveData } = require('../utils/validate');
 
 //FUNCIONES PARA CLIENTE
 
 exports.makeReservation = async(req,res)=>{
     try{
         let params = req.body;
-        let options = {hour:'numeric',minute:'numeric'};
         let data = {
             user: req.user.sub,
             startDate: params.startDate,
@@ -24,16 +23,16 @@ exports.makeReservation = async(req,res)=>{
         if(msg) return res.status(400).send(msg);
         let roomExist = await Room.findOne({_id: data.room});
         if(!roomExist) return res.status(400).send({message: 'Room not found'});
-        data.startDate = new Date('2022/'+ params.startDate).toLocaleDateString('es-ES',options);
-        data.finishDate = new Date('2022/'+ params.finishDate).toLocaleDateString('es-ES',options);
-        let dateStart = moment(moment(data.startDate,'DD-MM-YYYY, hh:mm').format()).unix();
-        let dateFinish = moment(moment(data.finishDate,'DD-MM-YYYY, hh:mm').format()).unix();
+        data.startDate = new Date('2022/'+ params.startDate);
+        data.finishDate = new Date('2022/'+ params.finishDate);
+        let dateStart = moment(data.startDate).unix();
+        let dateFinish = moment(data.finishDate).unix();
         if(dateStart >= dateFinish || dateStart < moment().unix()) return res.status(400).send({message: 'Equal dates or invalid start date'});
-        
+
         let reservations = await Reservation.find({room: data.room});
         for(let reservation of reservations){
-            let finishReservation = moment(moment(reservation.finishDate,'DD-MM-YYYY, hh:mm').format()).unix();
-            let startReservation = moment(moment(reservation.startDate,'DD-MM-YYYY, hh:mm').format()).unix();
+            let finishReservation = moment(reservation.finishDate).unix();
+            let startReservation = moment(reservation.startDate).unix();
             if(
                 startReservation == dateStart ||
                 finishReservation == dateFinish
@@ -54,6 +53,8 @@ exports.makeReservation = async(req,res)=>{
         let reservation = new Reservation(data);
         await reservation.save();
 
+        await Room.findOneAndUpdate({room: data.room},{available: false});
+
         return res.send({message: 'Reservation created successfully'})
     }catch(err){
         console.log(err);
@@ -61,12 +62,28 @@ exports.makeReservation = async(req,res)=>{
     }
 };
 
+exports.cancelReservation = async(req,res)=>{
+    try{
+        let reservationId = req.params.idR;
+
+        let reservationExist = await Reservation.findOne({_id: reservationId});
+        if(!reservationExist) return res.status(400).send({message: 'Reservation not found'});
+        await Reservation.findOneAndUpdate({_id: reservationId},{status: 'CANCELED'});
+        await Room.findOneAndUpdate({_id: reservationExist.room},{available: true});
+
+        return res.send({message: 'Reservation canceled'});
+    }catch(err){
+        console.log(err);
+        return res.status(500).send({message: 'Error making reservation'});
+    }
+}
+
 //FUNCIONES PARA ADMINHOTEL
 
 exports.getReservations = async(req,res)=>{
     try{
         let hotel = await Hotel.findOne({administrator: req.user.sub});
-        if(!hotel) return res.status(400).send({message: 'Are not an admin hotel'});
+        if(!hotel) return res.status(400).send({message: 'Has not been assigned a hotel'});
         let reservations = await Reservation.find({hotel: hotel._id})
         .lean()
         .populate('user')

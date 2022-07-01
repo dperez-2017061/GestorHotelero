@@ -3,7 +3,7 @@
 const mongoose = require('mongoose');
 
 const roomSchema = mongoose.Schema({
-    NoRoom: String,
+    noRoom: String,
     description: String,
     services:[
         {
@@ -11,7 +11,7 @@ const roomSchema = mongoose.Schema({
         }
     ],
     type: String,
-    status: String,
+    available: Boolean,
     price: Number,
     hotel: {type: mongoose.Schema.ObjectId, ref:'Hotel'}
 });

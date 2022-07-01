@@ -15,8 +15,6 @@ exports.createHotel = async (req,res)=>{
             name: params.name,
             address: params.address,
             description: params.description,
-            /* typeRooms: params.typeRooms.replace(/\s+/g, ''),
-            priceRooms: params.priceRooms.replace(/\s+/g, ''), */
             administrator: params.administrator
         }
 
@@ -30,19 +28,6 @@ exports.createHotel = async (req,res)=>{
         if(addressExist) return res.status(400).send({message: `Hotel whit address: ${data.address} already exist`});
         let adminExist = await Hotel.findOne({administrator: data.administrator}).lean().populate('administrator');
         if(adminExist) return res.status(400).send({message: `Hotel whit administrator: ${adminExist.administrator.name} already exist`});
-        /* data.typeRooms = data.typeRooms.split(',');
-        data.priceRooms = data.priceRooms.split(',');
-        data.roomRates=[];
-        for (let i=0; i<data.typeRooms.length;i++){
-            let rooms = {
-                name: data.typeRooms[i],
-                price:data.priceRooms[i]
-            };
-            data.roomRates.push(rooms);
-        }
-    
-        delete data.typeRooms;
-        delete data.priceRooms; */
 
         let hotel = new Hotel(data);
         await hotel.save();
@@ -59,7 +44,9 @@ exports.getHotel = async(req,res)=>{
     try{
         let hotelId = req.params.idH;
 
-        let hotel = await Hotel.findOne({_id: hotelId}).lean().populate('administrator');
+        let hotel = await Hotel.findOne({_id: hotelId})
+        .lean()
+        .populate('administrator');
         if(!hotel) return res.status(400).send({message: 'Hotel not found'})
         deleteSensitiveDataAdmin(hotel);
         
@@ -75,11 +62,14 @@ exports.getHotel = async(req,res)=>{
 
 exports.getHotels = async(req,res)=>{
     try{
-        let hotels = await Hotel.find().lean().populate('administrator');
+        let hotels = await Hotel.find()
+        .lean()
+        .populate('administrator');
 
         for(let hotel of hotels){
             await deleteSensitiveDataAdmin(hotel);
         };
+
         return res.send({hotels});
     }catch(err){
         console.log(err);
@@ -94,10 +84,14 @@ exports.searchHotelByName = async(req,res)=>{
         
         let msg = validateData(data);
         if(msg) return res.status(400).send(msg);
-        let hotels = await Hotel.find({name: {$regex: data.name, $options: 'i'}}).lean().populate('administrator');
+        let hotels = await Hotel.find({name: {$regex: data.name, $options: 'i'}})
+        .lean()
+        .populate('administrator');
+
         for(let hotel of hotels){
             await deleteSensitiveDataAdmin(hotel);
         };
+
         return res.send({hotels});
     }catch(err){
         console.log(err);
@@ -112,10 +106,14 @@ exports.searchHotelByAddress = async(req,res)=>{
         
         let msg = validateData(data);
         if(msg) return res.status(400).send(msg);
-        let hotels = await Hotel.find({address: {$regex: data.address, $options: 'i'}}).lean().populate('administrator');
+        let hotels = await Hotel.find({address: {$regex: data.address, $options: 'i'}})
+        .lean()
+        .populate('administrator');
+
         for(let hotel of hotels){
             await deleteSensitiveDataAdmin(hotel);
         };
+
         return res.send({hotels});
     }catch(err){
         console.log(err);
@@ -125,7 +123,9 @@ exports.searchHotelByAddress = async(req,res)=>{
 
 exports.mostPopular = async(req,res)=>{
     try{
-        let hotels = await Hotel.find();
+        let hotels = await Hotel.find()
+        .lean()
+        .populate('administrator');
         let sorts = [];
         for(let hotel of hotels){
             let reservations = await Reservation.find({status:'FINISHED', hotel: hotel._id});

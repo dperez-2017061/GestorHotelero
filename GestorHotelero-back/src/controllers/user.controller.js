@@ -1,9 +1,13 @@
 'use strict'
 
-const User = require('../models/user.model');
 const jwt = require('../services/jwt');
+const moment = require('moment');
+const User = require('../models/user.model');
 const Hotel = require('../models/hotel.model');
+const Reservation = require('../models/reservation.model');
 const { validateData, encrypt, checkPassword, checkUpdate, checkPermission, checkParams } = require('../utils/validate');
+const Invoice = require('../models/invoice.model');
+const Event = require('../models/event.model');
 
 //FUNCIONES PÚBLICAS
 
@@ -45,18 +49,23 @@ exports.login = async(req,res)=>{
         
         let msg = validateData(data);
         if(msg) return res.status(400).send(msg);
-        let userExist = await User.findOne({username: params.username}).lean();
+        let userExist = await User.findOne({username: params.username})
+        .lean()
+        .populate('hotel');
+
         if(userExist && await checkPassword(params.password, userExist.password)){
-            let token = await jwt.createToken(userExist)
+            let token = await jwt.createToken(userExist);
             delete userExist.password;
 
-            return res.send({token, user:userExist, message: 'Login successfully'});
+            let invoices = await Invoice.find({user: userExist._id});
+
+            return res.send({token, user:userExist, invoices, message: 'Login successfully'});
         }else return res.status(401).send({message: 'Invalid credentials'});
     }catch(err){
         console.log(err);
-        return res.status(500).send({err, message: 'Error logging in'})
+        return res.status(500).send({err, message: 'Error logging in'});
     }
-}
+};
 
 //FUNCIONES PARA CLIENTE
 
@@ -76,7 +85,9 @@ exports.update = async(req, res)=>{
         let usernameExist = await User.findOne({username: params.username});
         if(usernameExist && userExist.username != params.username) return res.status(400).send({message: `Username ${params.username} already in use`});
 
-        let userUpdated = await User.findOneAndUpdate({_id: userId}, params, {new: true}).lean();
+        let userUpdated = await User.findOneAndUpdate({_id: userId}, params, {new: true})
+        .lean()
+        .populate('hotel');
         delete userUpdated.password;
         delete userUpdated.role;
 
@@ -104,6 +115,77 @@ exports.delete = async(req, res)=>{
     }
 }
 
+exports.toInvoice = async(req,res)=>{
+    try{
+        let reservationId = req.params.idR;
+        let reservation = await Reservation.findOne({_id: reservationId}).populate('room');
+
+        let permission = checkPermission(Reservation.user, req.user.sub);
+        if(permission == false) return res.status(401).send({message: "You are not the owner of this invoice"});
+        let events = await Event.find({user: req.user.sub, finishDate: {$gte : reservation.startDate, $lte : moment()}}).lean();
+        let days = moment(reservation.finishDate).diff(moment(reservation.startDate), 'days');
+
+        if(events.length != 0){
+            let totalEvents = events.map(event=> event.cost).reduce((prev, curr)=> prev + curr,0);
+            let eventTotal= [];
+            for(let event of events){
+                eventTotal.push({event: event._id});
+            }
+
+            let data = {
+                date: moment(),
+                user: req.user.sub,
+                hotel: reservation.hotel,
+                room: reservation.room._id,
+                price: 'x' + days + ' ' + reservation.room.price,
+                subTotal: days * reservation.room.price,
+                events: eventTotal,
+                subTotalEvents: totalEvents
+            }
+            data.total = data.subTotal + data.subTotalEvents;
+
+            let invoice = new Invoice(data);
+            await invoice.save();
+
+            let invoiceCreated = await Invoice.findOne({_id: invoice._id}).lean()
+            .populate('user')
+            .populate('hotel')
+            .populate('room');
+            
+            delete invoiceCreated.user.password;
+            delete invoiceCreated.user.role;
+
+            return res.send({ invoiceCreated });
+        }else{
+            let data = {
+                date: moment(),
+                user: req.user.sub,
+                hotel: reservation.hotel,
+                room: reservation.room,
+                price: 'x' + days + ' ' + reservation.room.price,
+                subTotal: days * reservation.room.price,
+            }
+            data.total = data.subTotal;
+            
+            let invoice = new Invoice(data);
+            await invoice.save();
+
+            let invoiceCreated = await Invoice.findOne({_id: invoice._id}).lean()
+            .populate('user')
+            .populate('hotel')
+            .populate('room');
+            
+            delete invoiceCreated.user.password;
+            delete invoiceCreated.user.role;
+
+            return res.send({ invoiceCreated });
+        }
+    }catch(err){
+        console.log(err);
+        return res.status(500).send({err, message: 'Error logging in'});
+    }
+};
+
 //FUNCIONES PARA ADMINISTRADOR DEL HOTEL
 
 exports.searchGuest = async(req,res)=>{
@@ -114,14 +196,14 @@ exports.searchGuest = async(req,res)=>{
         if(msg) return res.status(400).send(msg);
 
         let hotel = await Hotel.findOne({administrator: req.user.sub});
-        if(!hotel) return res.send({message: 'Are not an admin hotel'});
+        if(!hotel) return res.send({message: 'Has not been assigned a hotel'});
         let users = await User.find({hotel: hotel._id, username: {$regex: data.username, $options: 'i'}}).lean().populate('hotel');
         return res.send({users});
     }catch(err){
         console.log(err);
         return res.status(500).send({message: 'Error searching guest'})
     }
-}
+};
 
 //FUNCIONES PARA ADMINISTRADOR DE LA APLICACIÓN
 
@@ -135,4 +217,4 @@ exports.getUsers = async(req,res)=>{
         console.log(err);
         return res.status(500).send({message: 'Error getting users'});
     }
-}
+};

@@ -4,8 +4,8 @@ const mongoose = require('mongoose');
 
 const reservationSchema = mongoose.Schema({
     user: {type: mongoose.Schema.ObjectId, ref:'User'},
-    startDate: String,
-    finishDate: String,
+    startDate: Date,
+    finishDate: Date,
     status: String,
     hotel: {type: mongoose.Schema.ObjectId, ref:'Hotel'},
     room: {type: mongoose.Schema.ObjectId, ref:'Room'}
