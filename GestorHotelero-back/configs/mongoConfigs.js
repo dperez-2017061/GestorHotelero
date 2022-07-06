@@ -31,5 +31,4 @@ exports.init = ()=>{
         connectTimeoutMS: 2500,
         useNewUrlParser: true
     }).catch(err=>console.log(err));
-    
 };

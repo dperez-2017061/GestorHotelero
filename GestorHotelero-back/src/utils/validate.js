@@ -57,7 +57,13 @@ exports.checkUpdate = async (params)=>{
         if(
             params.password || 
             params.role ||
-            params.user
+            params.user ||
+            params.administrator ||
+            params.hotel ||
+            params.room ||
+            params.status ||
+            params.noRoom ||
+            params.available
         ) return false;
             
         return true;

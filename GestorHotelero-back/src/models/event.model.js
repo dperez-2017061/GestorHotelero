@@ -8,6 +8,7 @@ const eventSchema = mongoose.Schema({
     type: String,
     startDate: Date,
     finishDate: Date,
+    status: String,
     extras: [
         {
             service: String,

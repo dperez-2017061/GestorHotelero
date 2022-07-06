@@ -24,5 +24,5 @@ app.use('/reservation', reservationRoutes);
 app.use('/event', eventRoutes);
 
 exports.initServer = ()=> app.listen(port, ()=>{
-    console.log(`Listening on port ${port}`)
+    console.log(`Listening on port ${port}`);
 });

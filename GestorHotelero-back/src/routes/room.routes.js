@@ -5,9 +5,11 @@ const api = express.Router();
 const mdAuth = require('../services/authenticated');
 const roomController = require('../controllers/room.controller');
 
-//RUTAS ADMINISTRADOR DE LA APLICACIÓN
+//RUTAS PARA ADMINISTRADOR DE LA APLICACIÓN
 
 api.post('/addRoom', [mdAuth.ensureAuth, mdAuth.isAdmin], roomController.addRoom);
+api.put('/updateRoom/:idRo', [mdAuth.ensureAuth, mdAuth.isAdmin], roomController.updateRoom);
+api.delete('/deleteRoom/:idRo', [mdAuth.ensureAuth, mdAuth.isAdmin], roomController.deleteRoom);
 
 //RUTAS PARA CLIENTE
 

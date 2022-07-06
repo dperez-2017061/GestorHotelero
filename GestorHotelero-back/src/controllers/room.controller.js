@@ -2,7 +2,7 @@
 
 const Room = require('../models/room.model');
 const Hotel = require('../models/hotel.model');
-const { validateData } = require('../utils/validate');
+const { validateData, checkParams, checkUpdate } = require('../utils/validate');
 
 //FUNCIONES PARA ADMINISTRADOR DE LA APLICACIÓN
 
@@ -23,7 +23,7 @@ exports.addRoom = async(req,res)=>{
         if(msg) return res.status(400).send(msg);
         let hotelExist = await Hotel.findOne({_id: data.hotel});
         if(!hotelExist) return res.status(400).send({message: 'Hotel not found'});
-        let noRoomExist = await Room.findOne({noRoom: data.noRoom});
+        let noRoomExist = await Room.findOne({noRoom: data.noRoom, hotel: data.hotel});
         if(noRoomExist) return res.status(400).send({message: `Room with number ${data.noRoom} already exist`});
         data.services = data.services.replace(/\s+/g, '');
         if(data.services.includes(',')){
@@ -40,6 +40,59 @@ exports.addRoom = async(req,res)=>{
         let room = new Room(data);
         await room.save();
         return res.send({message: 'Room created successfully'});
+    }catch(err){
+        console.log(err);
+        return res.status(500).send({err, message: 'Error creating room'}) ;
+    }
+};
+
+exports.updateRoom = async(req,res)=>{
+    try{
+        let roomId = req.params.idRo;
+        let params = req.body;
+
+        let roomExist = await Room.findOne({_id: roomId});
+        if(!roomExist) return res.status(400).send({message: 'Room not found'});
+        let emptyParams = await checkParams(params);
+        if(emptyParams === false) return res.status(400).send({message: 'Empty params'});
+        let validateUpdate = await checkUpdate(params);
+        if(validateUpdate === false) return res.status(400).send({message: 'Cannot update this information'});
+        
+        if(params.services){
+            params.services = params.services.replace(/\s+/g, '');
+            if(params.services.includes(',')){
+                let services=[];
+                params.services = params.services.split(',');
+                for(let service of params.services){
+                    services.push({service:service});
+                }
+                params.services = services;
+            }else{
+                params.services = [{service:params.services}];
+            }
+        }
+
+        console.log(params);
+        let roomUpdated = await Room.findOneAndUpdate({_id: roomId},params,{new:true})
+        .lean()
+        .populate('hotel');
+
+        return res.send({room: roomUpdated, message: 'Room updated'});
+    }catch(err){
+        console.log(err);
+        return res.status(500).send({err, message: 'Error updating room'});
+    }
+}
+
+exports.deleteRoom = async(req,res)=>{
+    try{
+        let roomId = req.params.idRo;
+
+        let roomExist = await Room.findOne({_id: roomId});
+        if(!roomExist) return res.status(400).send({message: 'Room not found'});
+        await Room.findOneAndDelete({_id: roomId});
+
+        return res.send({room: roomExist.noRoom, message: 'Room deleted successfully'});
     }catch(err){
         console.log(err);
         return res.status(500).send({err, message: 'Error creating room'}) ;

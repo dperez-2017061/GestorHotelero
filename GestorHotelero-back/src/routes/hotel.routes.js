@@ -9,9 +9,12 @@ const hotelController = require('../controllers/hotel.controller');
 
 api.post('/createHotel', [mdAuth.ensureAuth, mdAuth.isAdmin], hotelController.createHotel);
 api.get('/mostPopular', [mdAuth.ensureAuth, mdAuth.isAdmin], hotelController.mostPopular);
+api.put('/updateHotel/:idH', [mdAuth.ensureAuth, mdAuth.isAdmin], hotelController.updateHotel);
+api.delete('/deleteHotel/:idH', [mdAuth.ensureAuth, mdAuth.isAdmin], hotelController.deleteHotel);
+
 //FUNCIONES PARA CLIENTE
 
-api.get('/getHotel/:idH', hotelController.getHotel);
+api.get('/getHotel/:idH', mdAuth.ensureAuth, hotelController.getHotel);
 
 //FUNCIONES PÚBLICAS
 

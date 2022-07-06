@@ -4,7 +4,7 @@ const moment = require('moment');
 const Event = require('../models/event.model');
 const User = require('../models/user.model');
 const Hotel = require('../models/hotel.model');
-const { validateData, deleteSensitiveData } = require('../utils/validate');
+const { validateData, deleteSensitiveData, checkPermission, checkParams, checkUpdate } = require('../utils/validate');
 
 //FUNCIONES PARA ADMINHOTEL
 
@@ -17,7 +17,7 @@ exports.createEvent = async (req,res)=>{
             type: params.type,
             startDate: params.startDate,
             finishDate: params.finishDate,
-            finishDate: params.finishDate,
+            status: 'APPROVED',
             services: params.services,
             prices: params.prices,
             cost: params.cost
@@ -94,6 +94,78 @@ exports.createEvent = async (req,res)=>{
     }
 };
 
+exports.deleteEvent = async(req,res)=>{
+    try{
+        let eventId = req.params.idE;
+
+        let eventExist = Event.findOne({_id: eventId});
+        if(!eventExist) return res.status(400).send({message: 'Event not found'});
+        let hotel = Hotel.findOne({administrator: req.user.sub});
+        if(hotel._id != eventExist.hotel) return res.status(403).send({message: 'Not are the administrator of this hotel'});
+        await Event.findOneAndDelete({_id: eventId});
+
+        return res.send({event: eventExist.name, message: 'Event Deleted'});
+    }catch(err){
+        console.log(err);
+        return res.status(500).send({message: 'Error deleting event'})
+    }
+};
+
+exports.updateEvent = async(req,res)=>{
+    try{
+        let eventId = req.params.idE;
+        let params = req.body;
+
+        let eventExist = Event.findOne({_id: eventId});
+        if(!eventExist) return res.status(400).send({message: 'Event not found'});
+        let hotel = Hotel.findOne({administrator: req.user.sub});
+        if(hotel._id != eventExist.hotel) return res.status(403).send({message: 'Not are the administrator of this hotel'});
+        let emptyParams = await checkParams(params);
+        if(emptyParams === false) return res.status(400).send({message: 'Empty params'});
+        let validateUpdate = await checkUpdate(params);
+        if(validateUpdate === false) return res.status(400).send({message: 'Cannot update this information'});
+        
+        if(params.services && params.prices){
+            params.services = params.services.replace(/\s+/g, '');
+            params.prices = params.prices.replace(/\s+/g, '');
+            params.extras=[];
+            if(params.services.includes(',')){
+                params.services = params.services.split(',');
+                params.prices = params.prices.split(',');
+                for (let i=0; i<params.services.length;i++){
+                    let service = {
+                        service: params.services[i],
+                        price:params.prices[i]
+                    };
+                    
+                    if(cost){
+                        var cost = cost+Number(params.prices[i]);
+                    }else{
+                        var cost = Number(params.prices[i]);
+                    }
+                    params.extras.push(service);
+                }
+            }else{
+                params.extras=[{service: params.services, price: params.prices}];
+            }
+        }
+
+        if(params.cost != eventExist.cost && params.cost < cost)return res.status(400).send({message: 'The cost cannot be less than the total of services'});
+        delete params.services;
+        delete params.prices;
+
+        let eventUpdated = await Event.findOneAndUpdate({_id: eventId},params,{new: true});
+
+        return res.send({event: eventUpdated, message: 'Event updated'})
+
+    }catch(err){
+        console.log(err);
+        return res.status(500).send({message: 'Error updating event'});
+    }
+}
+
+//FUNCIONES PARA CLIENTE
+
 exports.getEvents = async(req,res)=>{
     try{
         let hotelId = req.params.idH;
@@ -114,4 +186,45 @@ exports.getEvents = async(req,res)=>{
         console.log(err);
         return res.status(500).send({message: 'Error getting events'})
     }
-}
+};
+
+exports.getEventsApproved = async(req,res)=>{
+    try{
+        let events = await Event.find({user: req.user.sub, status: 'APPROVED'})
+        .lean()
+        .populate('user')
+        .populate('hotel');
+
+        for(let event of events){
+            await deleteSensitiveData(event);
+        }
+
+        return res.send({events});
+
+    }catch(err){
+        console.log(err);
+        return res.status(500).send({message: 'Error getting events'})
+    }
+};
+
+exports.getEventsFinished = async(req,res)=>{
+    try{
+        let events = await Event.find({$or:[
+            {user: req.user.sub, status: 'FINISHED'},
+            {user: req.user.sub, status: 'CANCELED'}
+        ]})
+        .lean()
+        .populate('user')
+        .populate('hotel');
+
+        for(let event of events){
+            await deleteSensitiveData(event);
+        }
+
+        return res.send({events});
+
+    }catch(err){
+        console.log(err);
+        return res.status(500).send({message: 'Error getting events'})
+    }
+};
