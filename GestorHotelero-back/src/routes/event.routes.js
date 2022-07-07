@@ -10,6 +10,7 @@ const eventController = require('../controllers/event.controller');
 api.post('/createEvent', [mdAuth.ensureAuth, mdAuth.isAdminH], eventController.createEvent);
 api.delete('/deleteEvent/:idE', [mdAuth.ensureAuth, mdAuth.isAdminH], eventController.deleteEvent);
 api.put('/updateEvent/:idE', [mdAuth.ensureAuth, mdAuth.isAdminH], eventController.updateEvent);
+api.get('/getEvent/:idE', [mdAuth.ensureAuth, mdAuth.isAdminH], eventController.getEvent);
 
 //FUNCIONES PARA CLIENTE
 

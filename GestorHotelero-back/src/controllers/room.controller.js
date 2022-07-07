@@ -99,6 +99,22 @@ exports.deleteRoom = async(req,res)=>{
     }
 };
 
+exports.getRoom = async(req,res)=>{
+    try{
+        let roomId = req.params.idRo;
+
+        let roomExist = await Room.findOne({_id: roomId})
+        .lean()
+        .populate('hotel');
+        if(!roomExist) return res.status(400).send({message: 'Room not found'});
+
+        return res.send({room: roomExist});
+    }catch(err){
+        console.log(err);
+        return res.status(500).send({err, message: 'Error getting rooms'}) ;
+    }
+}
+
 //FUNCIONES PARA CLIENTE
 
 exports.getRooms = async(req,res)=>{
@@ -115,7 +131,7 @@ exports.getRooms = async(req,res)=>{
         console.log(err);
         return res.status(500).send({err, message: 'Error getting rooms'}) ;
     }
-}
+};
 
 //FUNCIONES PARA ADMINISTRADOR DEL HOTEL
 

@@ -125,6 +125,13 @@ exports.updateEvent = async(req,res)=>{
         let validateUpdate = await checkUpdate(params);
         if(validateUpdate === false) return res.status(400).send({message: 'Cannot update this information'});
         
+        if(moment(eventExist.finishDate).unix() <= moment().unix()){
+            await Event.findOneAndUpdate({_id: eventId},{status: 'FINISHED'});
+        }else if(moment(eventExist.startDate).unix() <= moment().unix() && 
+            moment().unix() < moment(eventExist.finishDate).unix()){
+                await Event.findOneAndUpdate({_id: eventId},{status: 'ACTIVE'});
+        }
+
         if(params.services && params.prices){
             params.services = params.services.replace(/\s+/g, '');
             params.prices = params.prices.replace(/\s+/g, '');
@@ -154,7 +161,12 @@ exports.updateEvent = async(req,res)=>{
         delete params.services;
         delete params.prices;
 
-        let eventUpdated = await Event.findOneAndUpdate({_id: eventId},params,{new: true});
+        let eventUpdated = await Event.findOneAndUpdate({_id: eventId},params,{new: true})
+        .lean()
+        .populate('user')
+        .populate('hotel');
+
+        await deleteSensitiveData(eventUpdated);
 
         return res.send({event: eventUpdated, message: 'Event updated'})
 
@@ -162,7 +174,32 @@ exports.updateEvent = async(req,res)=>{
         console.log(err);
         return res.status(500).send({message: 'Error updating event'});
     }
-}
+};
+
+exports.getEvent = async(req,res)=>{
+    try{
+        let eventId = req.params.idE;
+        let event = await Event.findOne({_id: eventId})
+        .lean()
+        .populate('user')
+        .populate('hotel');
+        if(!event) return res.status(400).send({message: 'Event not found'});
+        
+        if(moment(event.finishDate).unix() <= moment().unix()){
+            await Event.findOneAndUpdate({_id: event._id},{status: 'FINISHED'});
+        }else if(moment(event.startDate).unix() <= moment().unix() && 
+            moment().unix() < moment(event.finishDate).unix()){
+                await Event.findOneAndUpdate({_id: event._id},{status: 'ACTIVE'});
+        }
+        await deleteSensitiveData(event);
+
+        return res.send({event});
+
+    }catch(err){
+        console.log(err);
+        return res.status(500).send({message: 'Error getting events'})
+    }
+};
 
 //FUNCIONES PARA CLIENTE
 
@@ -177,6 +214,12 @@ exports.getEvents = async(req,res)=>{
         .populate('hotel');
 
         for(let event of events){
+            if(moment(event.finishDate).unix() <= moment().unix()){
+                await Event.findOneAndUpdate({_id: event._id},{status: 'FINISHED'});
+            }else if(moment(event.startDate).unix() <= moment().unix() && 
+                moment().unix() < moment(event.finishDate).unix()){
+                    await Event.findOneAndUpdate({_id: event._id},{status: 'ACTIVE'});
+            }
             await deleteSensitiveData(event);
         }
 
@@ -190,6 +233,15 @@ exports.getEvents = async(req,res)=>{
 
 exports.getEventsApproved = async(req,res)=>{
     try{
+        let verification = await Event.find({user: req.user.sub});
+        for(let event of verification){
+            if(moment(event.finishDate).unix <= moment().unix()){
+                await Event.findOneAndUpdate({_id: event._id},{status: 'FINISHED'});
+            }else if(moment(event.startDate).unix() <= moment().unix() && 
+            moment().unix() < moment(event.finishDate).unix()){
+                await Event.findOneAndUpdate({_id: event._id},{status: 'ACTIVE'});
+            }
+        };
         let events = await Event.find({user: req.user.sub, status: 'APPROVED'})
         .lean()
         .populate('user')
@@ -209,6 +261,15 @@ exports.getEventsApproved = async(req,res)=>{
 
 exports.getEventsFinished = async(req,res)=>{
     try{
+        let verification = await Event.find({user: req.user.sub});
+        for(let event of verification){
+            if(moment(event.finishDate).unix() <= moment().unix()){
+                await Event.findOneAndUpdate({_id: event._id},{status: 'FINISHED'});
+            }else if(moment(event.startDate).unix() <= moment().unix() && 
+            moment().unix() < moment(event.finishDate).unix()){
+                await Event.findOneAndUpdate({_id: event._id},{status: 'ACTIVE'});
+            }
+        };
         let events = await Event.find({$or:[
             {user: req.user.sub, status: 'FINISHED'},
             {user: req.user.sub, status: 'CANCELED'}

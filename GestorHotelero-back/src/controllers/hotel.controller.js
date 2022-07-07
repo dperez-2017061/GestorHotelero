@@ -117,7 +117,7 @@ exports.getHotel = async(req,res)=>{
         let hotel = await Hotel.findOne({_id: hotelId})
         .lean()
         .populate('administrator');
-        if(!hotel) return res.status(400).send({message: 'Hotel not found'})
+        if(!hotel) return res.status(400).send({message: 'Hotel not found'});
         deleteSensitiveDataAdmin(hotel);
         
         return res.send({hotel});

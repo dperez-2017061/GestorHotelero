@@ -93,7 +93,9 @@ exports.login = async(req,res)=>{
 exports.getUser = async(req,res)=>{
     try{
         let userId = req.params.idU;
-        let user = await User.findOne({_id: userId});
+        let user = await User.findOne({_id: userId})
+        .lean()
+        .populate('hotel');
 
         return res.send(user);
     }catch(err){
@@ -246,8 +248,6 @@ exports.searchGuest = async(req,res)=>{
 
 exports.getGuests = async(req,res)=>{
     try{
-        let params = req.body;
-
         let hotel = await Hotel.findOne({administrator: req.user.sub});
         if(!hotel) return res.send({message: 'Has not been assigned a hotel'});
         let reservations = await Reservation.find({hotel: hotel._id, status: 'ACTIVE'})
@@ -274,7 +274,9 @@ exports.getGuests = async(req,res)=>{
 exports.getUsers = async(req,res)=>{
     try{
 
-        let users = await User.find();
+        let users = await User.find()
+        .lean()
+        .populate('hotel');
 
         return res.send(users);
     }catch(err){
