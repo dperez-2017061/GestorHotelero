@@ -10,7 +10,7 @@ const roomController = require('../controllers/room.controller');
 api.post('/addRoom', [mdAuth.ensureAuth, mdAuth.isAdmin], roomController.addRoom);
 api.put('/updateRoom/:idRo', [mdAuth.ensureAuth, mdAuth.isAdmin], roomController.updateRoom);
 api.delete('/deleteRoom/:idRo', [mdAuth.ensureAuth, mdAuth.isAdmin], roomController.deleteRoom);
-api.get('/getRoom/:idRo', [mdAuth.ensureAuth, mdAuth.isAdmin], roomController.getRoom);
+api.get('/getRoom/:idRo', mdAuth.ensureAuth, roomController.getRoom);
 
 //RUTAS PARA CLIENTE
 
