@@ -1,7 +1,7 @@
 'use strict'
 
-const moment = require('moment');
 const Reservation = require('../models/reservation.model');
+const moment = require('moment');
 const Room = require('../models/room.model');
 const Hotel = require('../models/hotel.model');
 const User = require('../models/user.model');
@@ -19,13 +19,10 @@ exports.makeReservation = async(req,res)=>{
             status: 'APPROVED',
             room: params.room
         }
-        
         let msg =  validateData(data);
         if(msg) return res.status(400).send(msg);
         let roomExist = await Room.findOne({_id: data.room});
         if(!roomExist) return res.status(400).send({message: 'Room not found'});
-        data.startDate = new Date('2022/'+ params.startDate);
-        data.finishDate = new Date('2022/'+ params.finishDate);
         let dateStart = moment(data.startDate).unix();
         let dateFinish = moment(data.finishDate).unix();
         if(dateStart >= dateFinish || dateStart < moment().unix()) return res.status(400).send({message: 'Equal dates or invalid start date'});
@@ -53,7 +50,10 @@ exports.makeReservation = async(req,res)=>{
                 return res.status(400).send({message: 'This room was reservating in this days'});
             }
         }
-        let days = data.finishDate.diff(data.startDate, 'days');
+        let days = moment(data.finishDate).diff(moment(data.startDate), 'days');
+        if(days == 0){
+            days = 1
+        }
         data.total = roomExist.price*days;
         data.hotel = roomExist.hotel;
         
@@ -83,7 +83,10 @@ exports.getReservationsApproved = async(req,res)=>{
                     await User.findOneAndUpdate({_id: reservation.user},{hotel: reservation.hotel});
             }
         }
-        let reservations = await Reservation.find({user: req.user.sub, status: 'APPROVED'})
+        let reservations = await Reservation.find({$or:[
+            {user: req.user.sub, status: 'APPROVED'},
+            {user: req.user.sub, status: 'ACTIVE'},
+        ]})
         .lean()
         .populate('user')
         .populate('hotel')
@@ -317,8 +320,12 @@ exports.updateReservation = async(req,res)=>{
                 }
             }
         }
-        let days = data.finishDate.diff(data.startDate, 'days');
+        let days = moment(params.finishDate).diff(moment(params.startDate), 'days');
+        if(days == 0){
+            days = 1;
+        }
         params.total = roomExist.price*days;
+        
         let reservationUpdate = await Reservation.findOneAndUpdate({_id: reservationId}, params,{new: true});
         return res.send({reservation: reservationUpdate, message: 'Reservation updated'})
     }catch(err){
