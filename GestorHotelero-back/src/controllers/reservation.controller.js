@@ -53,8 +53,10 @@ exports.makeReservation = async(req,res)=>{
                 return res.status(400).send({message: 'This room was reservating in this days'});
             }
         }
-        
+        let days = data.finishDate.diff(data.startDate, 'days');
+        data.total = roomExist.price*days;
         data.hotel = roomExist.hotel;
+        
         let reservation = new Reservation(data);
         await reservation.save();
 
@@ -267,6 +269,8 @@ exports.updateReservation = async(req,res)=>{
 
         let reservationExist = await Reservation.findOne({_id: reservationId});
         if(!reservationExist) return res.status(400).send({message: 'Reservation not found'});
+        let roomExist = await Room.findOne({_id: reservationExist.room});
+        if(!roomExist) return res.status(400).send({message: 'Room not found'});
         let hotel = await Hotel.findOne({administrator: req.user.sub});
         if(String(hotel._id) != String(reservationExist.hotel)) return res.status(403).send({message: 'Not are the administrator of this hotel'})
         let emptyParams = await checkParams(params);
@@ -313,8 +317,9 @@ exports.updateReservation = async(req,res)=>{
                 }
             }
         }
-
-        let reservationUpdate = await Reservation.findOneAndUpdate({_id: reservationId}, {params},{new: true});
+        let days = data.finishDate.diff(data.startDate, 'days');
+        params.total = roomExist.price*days;
+        let reservationUpdate = await Reservation.findOneAndUpdate({_id: reservationId}, params,{new: true});
         return res.send({reservation: reservationUpdate, message: 'Reservation updated'})
     }catch(err){
         console.log(err);
