@@ -94,6 +94,7 @@ exports.getReservationsApproved = async(req,res)=>{
         for(let reservation of reservations){
             await deleteSensitiveData(reservation);
         }
+        reservations.sort((a,b) => a.startDate - b.startDate);
 
         return res.send({reservations});
     }catch(err){
@@ -127,6 +128,7 @@ exports.getReservationsFinished = async(req,res)=>{
         for(let reservation of reservations){
             await deleteSensitiveData(reservation);
         }
+        reservations.sort((a,b) => a.startDate - b.startDate);
 
         return res.send({reservations});
     }catch(err){
@@ -164,7 +166,7 @@ exports.getReservationsC = async(req,res)=>{
         for(let reservation of reservations){
             await deleteSensitiveData(reservation);
         }
-
+        reservations.sort((a,b) => a.startDate - b.startDate);
         return res.send({reservations});
     }catch(err){
         console.log(err);
@@ -256,6 +258,7 @@ exports.getReservations = async(req,res)=>{
         for(let reservation of reservations){
             await deleteSensitiveData(reservation);
         }
+        reservations.sort((a,b) => a.startDate - b.startDate);
 
         return res.send({reservations});
     }catch(err){

@@ -79,6 +79,7 @@ exports.login = async(req,res)=>{
             delete userExist.password;
 
             let invoices = await Invoice.find({user: userExist._id});
+            invoices.sort((a,b) => a.date - b.date);
 
             return res.send({token, user:userExist, invoices, message: 'Login successfully'});
         }else return res.status(401).send({message: 'Invalid credentials'});

@@ -222,6 +222,7 @@ exports.getEvents = async(req,res)=>{
             }
             await deleteSensitiveData(event);
         }
+        events.sort((a,b) => a.startDate - b.startDate);
 
         return res.send({events});
 
@@ -250,6 +251,7 @@ exports.getEventsApproved = async(req,res)=>{
         for(let event of events){
             await deleteSensitiveData(event);
         }
+        events.sort((a,b) => a.startDate - b.startDate);
 
         return res.send({events});
 
@@ -281,6 +283,7 @@ exports.getEventsFinished = async(req,res)=>{
         for(let event of events){
             await deleteSensitiveData(event);
         }
+        events.sort((a,b) => a.startDate - b.startDate);
 
         return res.send({events});
 
