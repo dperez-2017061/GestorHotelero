@@ -63,7 +63,8 @@ exports.checkUpdate = async (params)=>{
             params.room ||
             params.status ||
             params.noRoom ||
-            params.available
+            params.available ||
+            params.total
         ) return false;
             
         return true;
