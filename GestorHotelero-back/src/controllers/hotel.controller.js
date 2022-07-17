@@ -53,9 +53,6 @@ exports.mostPopular = async(req,res)=>{
         sorts.sort((a,b)=>{
             return b.reservations - a.reservations
         });
-        for(let sort of sorts){
-            delete sort.reservations
-        }
 
         return res.send({hotels:sorts});
     }catch(err){

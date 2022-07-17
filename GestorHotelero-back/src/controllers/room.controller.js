@@ -113,11 +113,24 @@ exports.getRoom = async(req,res)=>{
         console.log(err);
         return res.status(500).send({err, message: 'Error getting rooms'}) ;
     }
-}
+};
+
+exports.getRooms = async(req,res)=>{
+    try{
+        let rooms = await Room.find({})
+        .lean()
+        .populate('hotel');
+
+        return res.send({rooms});
+    }catch(err){
+        console.log(err);
+        return res.status(500).send({err, message: 'Error getting rooms'}) ;
+    }
+};
 
 //FUNCIONES PARA CLIENTE
 
-exports.getRooms = async(req,res)=>{
+exports.getRoomsC = async(req,res)=>{
     try{
         let hotelId = req.params.idH;
         let hotelExist = await Hotel.findOne({_id: hotelId});

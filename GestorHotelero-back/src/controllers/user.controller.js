@@ -275,7 +275,7 @@ exports.getGuests = async(req,res)=>{
 exports.getUsers = async(req,res)=>{
     try{
 
-        let users = await User.find()
+        let users = await User.find({role: 'CLIENT'})
         .lean()
         .populate('hotel');
 

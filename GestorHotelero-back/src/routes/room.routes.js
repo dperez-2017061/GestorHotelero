@@ -11,10 +11,11 @@ api.post('/addRoom', [mdAuth.ensureAuth, mdAuth.isAdmin], roomController.addRoom
 api.put('/updateRoom/:idRo', [mdAuth.ensureAuth, mdAuth.isAdmin], roomController.updateRoom);
 api.delete('/deleteRoom/:idRo', [mdAuth.ensureAuth, mdAuth.isAdmin], roomController.deleteRoom);
 api.get('/getRoom/:idRo', mdAuth.ensureAuth, roomController.getRoom);
+api.get('/getRooms', [mdAuth.ensureAuth, mdAuth.isAdmin], roomController.getRooms);
 
 //RUTAS PARA CLIENTE
 
-api.get('/getRooms/:idH', mdAuth.ensureAuth, roomController.getRooms);
+api.get('/getRoomsC/:idH', mdAuth.ensureAuth, roomController.getRooms);
 
 //FUNCIONES PARA ADMINISTRADOR DEL HOTEL
 

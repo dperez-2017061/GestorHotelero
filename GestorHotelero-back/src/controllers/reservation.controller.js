@@ -393,7 +393,9 @@ exports.deleteReservation = async(req,res)=>{
 
 exports.reservationsByHotel = async(req,res)=>{
     try{
-        let hotels = await Hotel.find();
+        let hotels = await Hotel.find()
+        .lean()
+        .populate('administrator');
         let reservations = [];
         let validation = await Reservation.find({});
         let now = new Date(moment().format('YYYY-MM-DDTHH:mm:ss')+'Z').getTime();
@@ -410,14 +412,12 @@ exports.reservationsByHotel = async(req,res)=>{
         };
         for(let hotel of hotels){
             
-            let aprovedReservations = (await Reservation.find({or$:[
-                {status: 'APPROVED',hotel:hotel._id},
-                {status: 'ACTIVE',hotel:hotel._id},
-            ]})).length;
-            let finishedReservations = (await Reservation.find({status: 'FINISHED',hotel:hotel._id})).length;
-            let canceledReservations = (await Reservation.find({status: 'CANCELED',hotel:hotel._id})).length;
+            let aprovedReservations = (await Reservation.find({status: 'APPROVED', hotel:hotel._id})).length;
+            let activeReservations = (await Reservation.find({status: 'ACTIVE', hotel:hotel._id})).length;
+            let finishedReservations = (await Reservation.find({status: 'FINISHED', hotel:hotel._id})).length;
+            let canceledReservations = (await Reservation.find({status: 'CANCELED', hotel:hotel._id})).length;
             let totalReservations = (await Reservation.find({hotel:hotel._id})).length;
-            reservations.push({hotel,aprovedReservations,finishedReservations,canceledReservations,totalReservations});
+            reservations.push({hotel,aprovedReservations,activeReservations,finishedReservations,canceledReservations,totalReservations});
         }
         return res.send(reservations);
     }catch(err){
