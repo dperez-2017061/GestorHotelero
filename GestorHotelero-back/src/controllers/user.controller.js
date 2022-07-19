@@ -1,14 +1,13 @@
 'use strict'
 
-const jwt = require('../services/jwt');
 const moment = require('moment');
+const jwt = require('../services/jwt');
 const User = require('../models/user.model');
 const Hotel = require('../models/hotel.model');
 const Reservation = require('../models/reservation.model');
 const Invoice = require('../models/invoice.model');
 const Event = require('../models/event.model');
 const { validateData, encrypt, checkPassword, checkUpdate, checkPermission, checkParams, deleteSensitiveData } = require('../utils/validate');
-
 
 exports.createAdmin = async(req,res)=>{
     try{
@@ -156,12 +155,28 @@ exports.toInvoice = async(req,res)=>{
     try{
         let reservationId = req.params.idR;
         let reservation = await Reservation.findOne({_id: reservationId}).populate('room');
-
+        if(!reservation) return res.status(400).send({message: 'Reservation not found'})
         let permission = checkPermission(Reservation.user, req.user.sub);
         if(permission == false) return res.status(401).send({message: "You are not the owner of this invoice"});
-        let events = await Event.find({user: req.user.sub, finishDate: {$gte : reservation.startDate, $lte : moment()}}).lean();
-        let days = moment(reservation.finishDate).diff(moment(reservation.startDate), 'days');
+        if(req.user.role != 'CLIENT') return res.status(400).send({message: 'Your role is not client'});
 
+        let events = await Event.find({user: req.user.sub, finishDate: {$gte : reservation.startDate, $lte : Date.now()}}).lean();
+        let days = moment(reservation.finishDate).diff(moment(reservation.startDate), 'days');
+        if(days == 0){
+            days = 1
+        }
+        let invoiceExist = await Invoice.findOne({room: reservation.room._id, date: {$lte: Date.now()}}).lean()
+        .populate('user')
+        .populate('hotel')
+        .populate('room')
+        .populate('events.event');
+        
+        delete invoiceExist.user.password;
+        delete invoiceExist.user.role;
+
+        if(invoiceExist) return res.send({message: 'You have already paid for this room' , invoice: invoiceExist});
+        if(reservation.status != 'FINISHED') return res.status(400).send({message: 'Your reservation has not been finished'});
+        
         if(events.length != 0){
             let totalEvents = events.map(event=> event.cost).reduce((prev, curr)=> prev + curr,0);
             let eventTotal= [];
@@ -170,7 +185,7 @@ exports.toInvoice = async(req,res)=>{
             }
 
             let data = {
-                date: moment(),
+                date: new Date(),
                 user: req.user.sub,
                 hotel: reservation.hotel,
                 room: reservation.room._id,
@@ -187,15 +202,16 @@ exports.toInvoice = async(req,res)=>{
             let invoiceCreated = await Invoice.findOne({_id: invoice._id}).lean()
             .populate('user')
             .populate('hotel')
-            .populate('room');
+            .populate('room')
+            .populate('events.event');
             
             delete invoiceCreated.user.password;
             delete invoiceCreated.user.role;
 
-            return res.send({ invoiceCreated });
+            return res.send({ invoice: invoiceCreated });
         }else{
             let data = {
-                date: moment(),
+                date: new Date(),
                 user: req.user.sub,
                 hotel: reservation.hotel,
                 room: reservation.room,
@@ -215,7 +231,7 @@ exports.toInvoice = async(req,res)=>{
             delete invoiceCreated.user.password;
             delete invoiceCreated.user.role;
 
-            return res.send({ invoiceCreated });
+            return res.send({ invoice: invoiceCreated });
         }
     }catch(err){
         console.log(err);

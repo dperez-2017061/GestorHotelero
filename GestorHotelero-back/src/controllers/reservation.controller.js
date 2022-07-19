@@ -1,7 +1,7 @@
 'use strict'
 
-const Reservation = require('../models/reservation.model');
 const moment = require('moment');
+const Reservation = require('../models/reservation.model');
 const Room = require('../models/room.model');
 const Hotel = require('../models/hotel.model');
 const User = require('../models/user.model');
@@ -19,25 +19,23 @@ exports.makeReservation = async(req,res)=>{
             status: 'APPROVED',
             room: params.room
         }
-
         let msg =  validateData(data);
         if(msg) return res.status(400).send(msg);
         let roomExist = await Room.findOne({_id: data.room});
         if(!roomExist) return res.status(400).send({message: 'Room not found'});
-        let dateStart = moment(data.startDate + 'Z').unix();
-        let dateFinish = moment(data.finishDate + 'Z').unix();
-        if(dateStart >= dateFinish || moment(data.startDate).unix() < moment().unix()) return res.status(400).send({message: 'Equal dates or invalid start date'});
-
+        let dateStart = moment(data.startDate).unix();
+        let dateFinish = moment(data.finishDate).unix();
+        if(dateStart >= dateFinish || dateStart < moment().unix()) return res.status(400).send({message: 'Equal dates or invalid start date'});
+        if(req.user.role != 'CLIENT') return res.status(400).send({message: 'Your role is not client'});
         let validation = await Reservation.find({room: data.room});
-        let now = new Date(moment().format('YYYY-MM-DDTHH:mm:ss')+'Z').getTime();
 
         for(let reservation of validation){
-            if(reservation.finishDate.getTime() <= now){
+            if(moment(reservation.finishDate).unix() <= moment().unix()){
                 await Reservation.findOneAndUpdate({_id: reservation._id},{status: 'FINISHED'});
                 await Room.findByIdAndUpdate({_id: reservation.room},{available: true});
                 await User.findOneAndUpdate({_id: reservation.user},{hotel: null});
-            }else if(reservation.startDate.getTime() <= now && 
-                now < reservation.finishDate.getTime()){
+            }else if(moment(reservation.startDate).unix() <= moment().unix() && 
+                moment().unix() < moment(reservation.finishDate).unix()){
                 await Reservation.findOneAndUpdate({_id: reservation._id},{status: 'ACTIVE'});
                 await User.findOneAndUpdate({_id: reservation.user},{hotel: reservation.hotel});
             }
@@ -72,8 +70,6 @@ exports.makeReservation = async(req,res)=>{
         }
         data.total = roomExist.price*days;
         data.hotel = roomExist.hotel;
-        data.startDate = data.startDate + 'Z';
-        data.finishDate = data.finishDate + 'Z';
 
         let reservation = new Reservation(data);
         await reservation.save();
@@ -90,19 +86,19 @@ exports.makeReservation = async(req,res)=>{
 exports.getReservationsApproved = async(req,res)=>{
     try{
         let validation = await Reservation.find({user: req.user.sub});
-        let now = new Date(moment().format('YYYY-MM-DDTHH:mm:ss')+'Z').getTime();
 
         for(let reservation of validation){
-            if(reservation.finishDate.getTime() <= now){
+            if(moment(reservation.finishDate).unix() <= moment().unix()){
                 await Reservation.findOneAndUpdate({_id: reservation._id},{status: 'FINISHED'});
                 await Room.findByIdAndUpdate({_id: reservation.room},{available: true});
                 await User.findOneAndUpdate({_id: reservation.user},{hotel: null});
-            }else if(reservation.startDate.getTime() <= now && 
-                now < reservation.finishDate.getTime()){
+            }else if(moment(reservation.startDate).unix() <= moment().unix() && 
+                moment().unix() < moment(reservation.finishDate).unix()){
                 await Reservation.findOneAndUpdate({_id: reservation._id},{status: 'ACTIVE'});
                 await User.findOneAndUpdate({_id: reservation.user},{hotel: reservation.hotel});
             }
         }
+
         let reservations = await Reservation.find({$or:[
             {user: req.user.sub, status: 'APPROVED'},
             {user: req.user.sub, status: 'ACTIVE'},
@@ -126,19 +122,19 @@ exports.getReservationsApproved = async(req,res)=>{
 exports.getReservationsFinished = async(req,res)=>{
     try{
         let validation = await Reservation.find({user: req.user.sub});
-        let now = new Date(moment().format('YYYY-MM-DDTHH:mm:ss')+'Z').getTime();
-
+        
         for(let reservation of validation){
-            if(reservation.finishDate.getTime() <= now){
+            if(moment(reservation.finishDate).unix() <= moment().unix()){
                 await Reservation.findOneAndUpdate({_id: reservation._id},{status: 'FINISHED'});
                 await Room.findByIdAndUpdate({_id: reservation.room},{available: true});
                 await User.findOneAndUpdate({_id: reservation.user},{hotel: null});
-            }else if(reservation.startDate.getTime() <= now && 
-                now < reservation.finishDate.getTime()){
+            }else if(moment(reservation.startDate).unix() <= moment().unix() && 
+                moment().unix() < moment(reservation.finishDate).unix()){
                 await Reservation.findOneAndUpdate({_id: reservation._id},{status: 'ACTIVE'});
                 await User.findOneAndUpdate({_id: reservation.user},{hotel: reservation.hotel});
             }
         }
+
         let reservations = await Reservation.find({$or:[
             {user: req.user.sub, status: 'FINISHED'},
             {user: req.user.sub, status: 'CANCELED'},
@@ -166,19 +162,19 @@ exports.getReservationsC = async(req,res)=>{
         let hotel = await Hotel.findOne({_id: hotelId});
         if(!hotel) return res.status(400).send({message: 'Hotel not found'});
         let validation = await Reservation.find({hotel: hotelId});
-        let now = new Date(moment().format('YYYY-MM-DDTHH:mm:ss')+'Z').getTime();
 
         for(let reservation of validation){
-            if(reservation.finishDate.getTime() <= now){
+            if(moment(reservation.finishDate).unix() <= moment().unix()){
                 await Reservation.findOneAndUpdate({_id: reservation._id},{status: 'FINISHED'});
                 await Room.findByIdAndUpdate({_id: reservation.room},{available: true});
                 await User.findOneAndUpdate({_id: reservation.user},{hotel: null});
-            }else if(reservation.startDate.getTime() <= now && 
-                now < reservation.finishDate.getTime()){
+            }else if(moment(reservation.startDate).unix() <= moment().unix() && 
+                moment().unix() < moment(reservation.finishDate).unix()){
                 await Reservation.findOneAndUpdate({_id: reservation._id},{status: 'ACTIVE'});
                 await User.findOneAndUpdate({_id: reservation.user},{hotel: reservation.hotel});
             }
         }
+
         let reservations = await Reservation.find({$or:[
             {hotel: hotelId, status: 'APRROVED'},
             {hotel: hotelId, status: 'ACTIVE'}
@@ -204,15 +200,15 @@ exports.cancelReservation = async(req,res)=>{
 
         let reservationExist = await Reservation.findOne({_id: reservationId});
         if(!reservationExist) return res.status(400).send({message: 'Reservation not found'});
-        let now = new Date(moment().format('YYYY-MM-DDTHH:mm:ss')+'Z').getTime();
-        if(reservationExist.finishDate.getTime() <= now){
+            
+        if(moment(reservationExist.finishDate).unix() <= moment().unix()){
             await Reservation.findOneAndUpdate({_id: reservationExist._id},{status: 'FINISHED'});
             await Room.findByIdAndUpdate({_id: reservationExist.room},{available: true});
             await User.findOneAndUpdate({_id: reservationExist.user},{hotel: null});
-        }else if(reservationExist.startDate.getTime() <= now && 
-            now < reservationExist.finishDate.getTime()){
-                await Reservation.findOneAndUpdate({_id: reservationExist._id},{status: 'ACTIVE'});
-                await User.findOneAndUpdate({_id: reservationExist.user},{hotel: reservationExist.hotel});
+        }else if(moment(reservationExist.startDate).unix() <= moment().unix() && 
+            moment().unix() < moment(reservation.finishDate).unix()){
+            await Reservation.findOneAndUpdate({_id: reservationExist._id},{status: 'ACTIVE'});
+            await User.findOneAndUpdate({_id: reservationExist.user},{hotel: reservationExist.hotel});
         }
 
         if(reservationExist.status != 'APPROVED') return res.send({message: 'Cannot cancel reservation that already finisihed or already canceled'})
@@ -237,16 +233,17 @@ exports.getReservation = async(req,res)=>{
         .populate('user')
         .populate('hotel')
         .populate('room');
+        
         if(!reservationExist) return res.status(500).send({message: 'Reservation not found'});
         let hotel = await Hotel.findOne({administrator: req.user.sub});
         if(!hotel) return res.status(400).send({message: 'Has not been assigned a hotel'});
-        let now = new Date(moment().format('YYYY-MM-DDTHH:mm:ss')+'Z').getTime();
-        if(reservationExist.finishDate.getTime() <= now){
+
+        if(moment(reservationExist.finishDate).unix() <= moment().unix()){
             await Reservation.findOneAndUpdate({_id: reservationExist._id},{status: 'FINISHED'});
-            await Room.findByIdAndUpdate({_id: reservationExist.room._id},{available: true});
+            await Room.findByIdAndUpdate({_id: reservationExist.room},{available: true});
             await User.findOneAndUpdate({_id: reservationExist.user},{hotel: null});
-        }else if(reservationExist.startDate.getTime() <= now &&
-            now < reservationExist.finishDate.getTime()){
+        }else if(moment(reservationExist.startDate).unix() <= moment().unix() && 
+            moment().unix() < moment(reservation.finishDate).unix()){
             await Reservation.findOneAndUpdate({_id: reservationExist._id},{status: 'ACTIVE'});
             await User.findOneAndUpdate({_id: reservationExist.user},{hotel: reservationExist.hotel});
         }
@@ -264,18 +261,19 @@ exports.getReservations = async(req,res)=>{
         let hotel = await Hotel.findOne({administrator: req.user.sub});
         if(!hotel) return res.status(400).send({message: 'Has not been assigned a hotel'});
         let validation = await Reservation.find({hotel: hotel._id});
-        let now = new Date(moment().format('YYYY-MM-DDTHH:mm:ss')+'Z').getTime();
+        
         for(let reservation of validation){
-            if(reservation.finishDate.getTime() <= now){
+            if(moment(reservation.finishDate).unix() <= moment().unix()){
                 await Reservation.findOneAndUpdate({_id: reservation._id},{status: 'FINISHED'});
                 await Room.findByIdAndUpdate({_id: reservation.room},{available: true});
                 await User.findOneAndUpdate({_id: reservation.user},{hotel: null});
-            }else if(reservation.startDate.getTime() <= now && 
-            now < reservation.finishDate.getTime()){
+            }else if(moment(reservation.startDate).unix() <= moment().unix() && 
+                moment().unix() < moment(reservation.finishDate).unix()){
                 await Reservation.findOneAndUpdate({_id: reservation._id},{status: 'ACTIVE'});
                 await User.findOneAndUpdate({_id: reservation.user},{hotel: reservation.hotel});
             }
         }
+
         let reservations = await Reservation.find({hotel: hotel._id})
         .lean()
         .populate('user')
@@ -309,30 +307,29 @@ exports.updateReservation = async(req,res)=>{
         if(emptyParams === false) return res.status(400).send({message: 'Empty params'});
         let validateUpdate = await checkUpdate(params);
         if(validateUpdate === false) return res.status(400).send({message: 'Cannot update this information'});
-        let now = new Date(moment().format('YYYY-MM-DDTHH:mm:ss')+'Z').getTime();
 
-        if(reservationExist.finishDate.getTime() <= now){
+        if(moment(reservationExist.finishDate).unix() <= moment().unix()){
             await Reservation.findOneAndUpdate({_id: reservationExist._id},{status: 'FINISHED'});
             await Room.findByIdAndUpdate({_id: reservationExist.room},{available: true});
             await User.findOneAndUpdate({_id: reservationExist.user},{hotel: null});
-        }else if(reservationExist.startDate.getTime() <= now && 
-            now < reservationExist.finishDate.getTime()){
-                await Reservation.findOneAndUpdate({_id: reservationExist._id},{status: 'ACTIVE'});
-                await User.findOneAndUpdate({_id: reservationExist.user},{hotel: reservationExist.hotel});
+        }else if(moment(reservationExist.startDate).unix() <= moment().unix() && 
+            moment().unix() < moment(reservationExist.finishDate).unix()){
+            await Reservation.findOneAndUpdate({_id: reservationExist._id},{status: 'ACTIVE'});
+            await User.findOneAndUpdate({_id: reservationExist.user},{hotel: reservationExist.hotel});
         }
         
-        let dateStart = moment(params.startDate + 'Z').unix();
-        let dateFinish = moment(params.finishDate + 'Z').unix();
+        let dateStart = moment(params.startDate).unix();
+        let dateFinish = moment(params.finishDate).unix();
         if((dateStart != moment(reservationExist.startDate).unix() && dateStart >= dateFinish) ||
-            (dateFinish != moment(reservationExist.finishDate).unix() && moment(params.finishDate).unix() < moment().unix()))
+            (dateFinish != dateFinish && dateStart < moment().unix()))
             return res.status(400).send({message: 'Equal dates or invalid start date'});
         if(reservationExist.status != 'APPROVED') return res.status(400).send({message: 'Cannot update reservations finished or actives'});
         if(dateStart != moment(reservationExist.startDate).unix() ||
             dateFinish != moment(reservationExist.finishDate).unix()){
             let reservations = await Reservation.find({$or:[
-            {room: reservationExist.room, status: 'APPROVED'},
-            {room: reservationExist.room, status: 'ACTIVE'}
-        ]});
+                {room: reservationExist.room, status: 'APPROVED'},
+                {room: reservationExist.room, status: 'ACTIVE'}
+            ]});
             for(let reservation of reservations){
                 if(reservation._id == reservationId){}else{
                     let finishReservation = moment(reservation.finishDate).unix();
@@ -354,13 +351,12 @@ exports.updateReservation = async(req,res)=>{
                 }
             }
         }
+
         let days = moment(params.finishDate).diff(moment(params.startDate), 'days');
         if(days == 0){
             days = 1;
         }
         params.total = roomExist.price*days;
-        params.startDate = params.startDate + 'Z';
-        params.finishDate = params.finishDate + 'Z';
 
         let reservationUpdate = await Reservation.findOneAndUpdate({_id: reservationId}, params,{new: true});
         return res.send({reservation: reservationUpdate, message: 'Reservation updated'})
@@ -398,25 +394,26 @@ exports.reservationsByHotel = async(req,res)=>{
         .populate('administrator');
         let reservations = [];
         let validation = await Reservation.find({});
-        let now = new Date(moment().format('YYYY-MM-DDTHH:mm:ss')+'Z').getTime();
-        for(let reservation of validation){
-            if(reservation.finishDate.getTime() <= now){
+
+        for(let reservation of reservations){
+            if(moment(reservation.finishDate).unix() <= moment().unix()){
                 await Reservation.findOneAndUpdate({_id: reservation._id},{status: 'FINISHED'});
                 await Room.findByIdAndUpdate({_id: reservation.room},{available: true});
                 await User.findOneAndUpdate({_id: reservation.user},{hotel: null});
-            }else if(reservation.startDate.getTime() <= now && 
-                now < reservation.finishDate.getTime()){
+            }else if(moment(reservation.startDate).unix() <= moment().unix() && 
+                moment().unix() < moment(reservation.finishDate).unix()){
                 await Reservation.findOneAndUpdate({_id: reservation._id},{status: 'ACTIVE'});
                 await User.findOneAndUpdate({_id: reservation.user},{hotel: reservation.hotel});
             }
         };
+
         for(let hotel of hotels){
-            
             let aprovedReservations = (await Reservation.find({status: 'APPROVED', hotel:hotel._id})).length;
             let activeReservations = (await Reservation.find({status: 'ACTIVE', hotel:hotel._id})).length;
             let finishedReservations = (await Reservation.find({status: 'FINISHED', hotel:hotel._id})).length;
             let canceledReservations = (await Reservation.find({status: 'CANCELED', hotel:hotel._id})).length;
             let totalReservations = (await Reservation.find({hotel:hotel._id})).length;
+
             reservations.push({hotel,aprovedReservations,activeReservations,finishedReservations,canceledReservations,totalReservations});
         }
         return res.send(reservations);
