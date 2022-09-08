@@ -1,0 +1,96 @@
+<div *ngIf="invoice" class="body">
+  <div id="invoiceholder">
+
+    <div id="headerimage"></div>
+    <div id="invoice" class="effect2">
+
+      <div id="invoice-top">
+        <div class="logo"></div>
+        <!--End Info-->
+        <div class="title">
+          <h1>{{invoice.user.name}}</h1>
+          <p>Date: {{invoice.date}}<br>
+            {{invoice.user.email}}
+          </p>
+        </div>
+        <!--End Title-->
+      </div>
+      <!--End InvoiceTop-->
+
+      <div id="invoice-bot">
+
+        <div id="table">
+          <table>
+            <tr class="tabletitle">
+              <td class="item">
+                <h2>Description</h2>
+              </td>
+              <td class="Hours">
+                <h2>Quantity</h2>
+              </td>
+              <td class="Rate">
+                <h2>Sub-total</h2>
+              </td>
+            </tr>
+
+            <tr class="service">
+              <td class="tableitem">
+                <p class="itemtext">Room: {{invoice.room.noRoom}}</p>
+              </td>
+              <td class="tableitem">
+                <p class="itemtext">{{invoice.price}}</p>
+              </td>
+              <td class="tableitem">
+                <p class="itemtext">Q {{invoice.subTotal}}</p>
+              </td>
+            </tr>
+
+            <tr class="service">
+              <td class="tableitem">
+                <p class="itemtext">Events: 
+                  <span *ngFor="let event of invoice.events">{{event.event.name}} </span>
+              </td>
+              <td class="tableitem">
+                <p class="itemtext">
+                  <span *ngFor="let event of invoice.events">{{event.event.cost}}</span>
+                </p>
+              </td>
+              <td class="tableitem">
+                <p class="itemtext">Q {{invoice.subTotalEvents}}</p>
+              </td>
+            </tr>
+
+            <tr class="tabletitle">
+              <td></td>
+              <td class="Rate">
+                <h2>Total</h2>
+              </td>
+              <td class="payment">
+                <h2>Q {{invoice.total}}</h2>
+              </td>
+            </tr>
+
+          </table>
+        </div>
+        <!--End Table-->
+
+        <form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">
+          <input type="hidden" name="cmd" value="_s-xclick">
+          <input type="hidden" name="hosted_button_id" value="QRZ7QTM9XRPJ6">
+          <input type="image" src="http://michaeltruong.ca/images/paypal.png" border="0" name="submit"
+            alt="PayPal - The safer, easier way to pay online!">
+        </form>
+
+
+        <div id="legalcopy">
+          <p class="legal"><strong>Thank you for your business!</strong>  Payment is expected within 31 days; please
+            process this invoice within that time. There will be a 5% interest charge per month on late invoices.
+          </p>
+        </div>
+
+      </div>
+      <!--End InvoiceBot-->
+    </div>
+    <!--End Invoice-->
+  </div><!-- End Invoice Holder-->
+</div>

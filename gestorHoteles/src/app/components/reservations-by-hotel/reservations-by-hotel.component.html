@@ -1,0 +1,27 @@
+<h2 class="text-center" style="padding-top: 3%;">Reservation List</h2>
+<div class="me-5 row div" >
+<table class="fl-table">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Active Reservations</th>
+            <th>Aproved Reservations</th>
+            <th>Canceled Reservations</th>
+            <th>Finished Reservations</th>
+            <th>Total Reservations</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr *ngFor="let hotel of hotels">
+            <td>{{hotel.hotel.name}}</td>
+            <td>{{hotel.activeReservations}} </td>
+            <td>{{hotel.aprovedReservations}}</td>
+            <td>{{hotel.canceledReservations}}</td>
+            <td>{{hotel.finishedReservations}}</td>
+            <td>{{hotel.totalReservations}}</td>
+        </tr>
+    <tbody>
+</table>
+    <canvas baseChart [data]="pieChartData" [type]="pieChartType" [options]="pieChartOptions" class=" mt-5 grafica">
+    </canvas>
+</div>

@@ -1,0 +1,29 @@
+<div class="body">
+    <div class="d-flex head">
+        <form class="d-flex">
+            <input [(ngModel)]="search" name="search" class="form-control me-2" type="search" placeholder="Buscar" aria-label="Search">
+            <a class="boton dorado" type="submit">Buscar</a>
+        </form>
+        <h2>Events finalized</h2>
+    </div>
+    <table class="fl-table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Type</th>
+                <th>Hotel</th>
+                <th>Extras</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let event of events | search:search">
+                <td>{{event.name}}</td>
+                <td>{{event.type}}</td>
+                <td>{{event.hotel.name}}</td>
+                <td>
+                    <span *ngFor="let extras of event.extras">{{extras.service}} </span>
+                </td>
+            </tr>
+        <tbody>
+    </table>
+</div>

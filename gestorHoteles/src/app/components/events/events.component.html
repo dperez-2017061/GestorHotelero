@@ -1,0 +1,83 @@
+<div class="body">
+    <div class="d-flex head">
+        <form class="d-flex">
+            <input [(ngModel)]="search" name="search" class="form-control me-2" type="search" placeholder="Buscar" aria-label="Search">
+            <a class="boton dorado" type="submit">Buscar</a>
+        </form>
+        <h2>Events</h2>
+    </div>
+    <table class="fl-table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Type</th>
+                <th>StartDate</th>
+                <th>FinishDate/th>
+                <th>Status</th>
+                <th>Cost</th>
+                <th>Extras</th>
+                <th>Opciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let event of events | search:search">
+                <td>{{event.name}}</td>
+                <td>{{event.type}}</td>
+                <td>{{event.startDate}}</td>
+                <td>{{event.finishDate}}</td>
+                <td>{{event.status}}</td>
+                <td>{{event.cost}}</td>
+                <td>
+                    <span *ngFor="let extras of event.extras">{{extras.service}} </span>
+                </td>
+                
+                <td>
+                    <button (click)="getEvent(event._id)" type="button" class="btn button dorado mb-2" data-bs-toggle="offcanvas"
+                        data-bs-target="#offcanvasExample" aria-controls="offcanvasExample">Editar</button>
+                    <button (click)="deleteEvent(event._id)" type="button" class="btn button cafe">Eliminar</button>
+                </td>
+            </tr>
+        <tbody>
+    </table>
+
+</div>
+
+
+<div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasExample" aria-labelledby="offcanvasExampleLabel">
+    <div class="offcanvas-header">
+        <h5 class="offcanvas-title" id="offcanvasExampleLabel">Update Event</h5>
+        <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas"
+            aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+        <form (ngSubmit)="updateEvent()" *ngIf="eventUpdated">
+            <div  class="mb-3">
+                <label for="exampleInput1" class="form-label">Name</label>
+                <input [(ngModel)]="eventUpdated.name" name="name" type="text" class="form-control"
+                    id="exampleInput1">
+            </div>
+            <div class="mb-3">
+                <label for="exampleInput2" class="form-label">Extras</label>
+                <input [(ngModel)]="eventUpdated.extras" name="extras" type="text"  class="form-control"
+                    id="exampleInput2">
+            </div>
+            <div class="mb-3">
+                <label for="exampleInput3" class="form-label">StartDate</label>
+                <input [(ngModel)]="eventUpdated.startDate" name="startDate" type="datetime-local" class="form-control"
+                    id="exampleInput3">
+            </div>
+            <div class="mb-3">
+                <label for="exampleInput4" class="form-label">FinishDate</label>
+                <input [(ngModel)]="eventUpdated.finishDate" name="finishDate" type="datetime-local" class="form-control"
+                    id="exampleInput4">
+            </div>
+            <div class="mb-3">
+                <label for="exampleInput4" class="form-label">Cost</label>
+                <input [(ngModel)]="eventUpdated.cost" name="cost" type="number" class="form-control"
+                    id="exampleInput4">
+            </div>
+                <button type="button" class="btn btn-secondary me-3" data-bs-dismiss="offcanvas" aria-label="Close">Close</button>
+                <button type="button" type="submit" class="btn btn-primary" data-bs-dismiss="offcanvas" aria-label="Close">Save changes</button>
+        </form>
+        </div>
+    </div>

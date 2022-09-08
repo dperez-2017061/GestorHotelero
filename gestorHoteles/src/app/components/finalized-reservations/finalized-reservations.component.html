@@ -1,0 +1,23 @@
+<div class="body">
+    <h2>Reservations Finished</h2>
+    <table class="fl-table">
+        <thead>
+            <tr>
+                <th>StartDate</th>
+                <th>FinishDate</th>
+                <th>Hotel</th>
+                <th>Room</th>
+                <th>Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let reservation of reservations">
+                <td>{{reservation.startDate}}</td>
+                <td>{{reservation.finishDate}}</td>
+                <td>{{reservation.hotel.name}}</td>
+                <td>{{reservation.room.noRoom}}</td>
+                <td>{{reservation.total}}</td>
+            </tr>
+        <tbody>
+    </table>
+<div>

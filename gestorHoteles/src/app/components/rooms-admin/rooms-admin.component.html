@@ -1,0 +1,120 @@
+<div class="body">
+    <div class="d-flex head">
+        <h2>Rooms</h2>
+        <a class="a" href="" data-bs-toggle="modal" data-bs-target="#exampleModal"><img src="../../../assets/img/Add Room.png" alt="add Room" href=""></a>
+    </div>
+    
+    <table class="fl-table">
+        <thead>
+            <tr>
+                <th>NoRoom</th>
+                <th>Description</th>
+                <th>Services</th>
+                <th>Status</th>
+                <th>Type</th>
+                <th>Price</th>
+                <!-- ngIf role = client -->
+                <th>Options</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let room of rooms">
+                <td>{{room.noRoom}}</td>
+                <td>{{room.description}}</td>
+                <td>
+                    <span *ngFor="let service of room.services">{{service.service}} </span>
+                </td>
+                <td *ngIf="room.available == true">Available</td>
+                <td *ngIf="room.available == false">Reserved</td>
+                <td>{{room.type}}</td>
+                <td>{{room.price}}</td>
+                <td>
+                    <button (click)="getRoom(room._id)" type="button" class="btn button dorado mb-2" data-bs-toggle="offcanvas"
+                        data-bs-target="#offcanvasExample" aria-controls="offcanvasExample">Editar</button>
+                    <button (click)="deleteRoom(room._id)" type="button" class="btn button cafe">Eliminar</button>
+                </td>
+            </tr>
+        <tbody>
+    </table>
+
+    
+</div>
+
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Reserve</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form (ngSubmit)="addRoom()">
+                        <div class="mb-3">
+                            <label for="exampleInput" class="form-label">NoRoom</label>
+                            <input [(ngModel)]="room.noRoom" name="noRoom" type="text" class="form-control"
+                                id="exampleInput">
+                        </div>
+                        <div class="mb-3">
+                            <label for="exampleInput1" class="form-label">Description</label>
+                            <input [(ngModel)]="room.description" name="description" type="text"
+                                class="form-control" id="exampleInput1">
+                        </div>
+                        <div class="mb-3">
+                            <label for="exampleInput2" class="form-label">Services</label>
+                            <input [(ngModel)]="room.services" name="services" type="text" class="form-control"
+                                id="exampleInput2">
+                        </div>
+                        <div class="mb-3">
+                            <label for="exampleInput3" class="form-label">Type</label>
+                            <input [(ngModel)]="room.type" name="type" type="text" class="form-control"
+                                id="exampleInput3">
+                        </div>
+                        <div class="mb-3">
+                            <label for="exampleInput4" class="form-label">Price</label>
+                            <input [(ngModel)]="room.price" name="price" type="number" class="form-control"
+                                id="exampleInput4">
+                        </div>
+                        <div class="mb-3">
+                            <label for="exampleInput5" class="form-label">Hotel</label>
+                            <input [(ngModel)]="room.hotel" name="hotel" type="text" class="form-control"
+                                id="exampleInput5">
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="button" type="submit" class="btn btn-primary" data-bs-dismiss="modal">Save changes</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasExample" aria-labelledby="offcanvasExampleLabel">
+    <div class="offcanvas-header">
+        <h5 class="offcanvas-title" id="offcanvasExampleLabel">Update Room</h5>
+        <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas"
+            aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+        <form (ngSubmit)="updateRoom()" *ngIf="roomUpdate">
+            <div  class="mb-3">
+                <label for="exampleInput1" class="form-label">Descripción</label>
+                <input [(ngModel)]="roomUpdate.description" name="description" type="text" class="form-control"
+                    id="exampleInput1">
+            </div>
+            <div class="mb-3">
+                <label for="exampleInput2" class="form-label">Services</label>
+                <input [(ngModel)]="roomUpdate.services" name="services" type="text"  class="form-control"
+                    id="exampleInput2">
+            </div>
+            <div class="mb-3">
+                <label for="exampleInput3" class="form-label">Price</label>
+                <input [(ngModel)]="roomUpdate.price" name="price" type="number" class="form-control"
+                    id="exampleInput3">
+            </div>
+                <button type="button" class="btn btn-secondary me-3" data-bs-dismiss="offcanvas" aria-label="Close">Close</button>
+                <button type="button" type="submit" class="btn btn-primary" data-bs-dismiss="offcanvas" aria-label="Close">Save changes</button>
+        </form>
+        </div>
+    </div>

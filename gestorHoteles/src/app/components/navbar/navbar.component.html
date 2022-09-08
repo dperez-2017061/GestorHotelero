@@ -1,0 +1,31 @@
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <div class="container-fluid">
+    <a class="navbar-brand" routerLink="">GESTOR HOTELERO</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+      <div class="navbar-nav">
+        <a *ngIf="!token" class="nav-link active" aria-current="page" routerLink="/login">Login</a>
+        <a *ngIf="role == 'ADMIN'" class="nav-link" routerLink="/hotel/newhotel">New Hotel</a>
+        <a *ngIf="role == 'ADMIN'" class="nav-link" routerLink="/hotel/adminHotels">Hotels Admin</a>
+        <a *ngIf="role == 'CLIENT'" class="nav-link" routerLink="/reservation/upcomingReservations">Upcoming Reservations</a>
+        <a *ngIf="role == 'CLIENT'" class="nav-link" routerLink="/reservation/finalizedReservations">finalized Reservations</a>
+        <a *ngIf="role == 'ADMINHOTEL'" class="nav-link" routerLink="/hotel/hotelReservations">Reservations</a>
+        <a *ngIf="role == 'ADMIN'" class="nav-link" routerLink="/hotel/mostPopular">Most popular</a>
+        <a class="nav-link" routerLink="/hotels">Hotels</a>
+        <a *ngIf="role == 'ADMIN'" class="nav-link" routerLink="/room/roomsAdmin">Rooms Admin</a>
+        <a *ngIf="role == 'ADMINHOTEL'" class="nav-link" routerLink="/room/availableRooms">Available Rooms</a>
+        <a *ngIf="role == 'ADMIN'" class="nav-link" routerLink="/hotel/reservationsByHotel">Reservations by Hotel</a>
+        <a *ngIf="role == 'ADMIN'" class="nav-link" routerLink="/user/users">Users</a>
+        <a *ngIf="role == 'ADMINHOTEL'" class="nav-link" routerLink="/user/guests">Guests</a>
+        <a *ngIf="role == 'CLIENT'"class="nav-link" routerLink="/event/activeEvents">Events Active</a>
+        <a *ngIf="role == 'CLIENT'" class="nav-link" routerLink="/event/finalizedEvents">Events Finalized</a>
+        <a *ngIf="role == 'CLIENT'" class="nav-link" routerLink="/user/invoice">Invoice</a>
+        <a *ngIf="token" class="nav-link" routerLink="/user/profile">Profile</a>
+        <a *ngIf="token" class="nav-link" (click)="logOut()" routerLink="/home">Log out</a>
+      </div>
+    </div>
+  </div>
+</nav>

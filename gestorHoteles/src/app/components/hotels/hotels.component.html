@@ -1,0 +1,68 @@
+<body style="padding-top: 130px;">
+  <div class="d-flex head">
+    <form class="d-flex">
+        <input [(ngModel)]="search" name="search" class="form-control me-2" type="search" placeholder="Buscar" aria-label="Search">
+        <a class="boton dorado" type="submit">Buscar</a>
+    </form>
+      <h2>Hotels</h2>
+      <a class="a" routerLink="/hotel/newhotel" data-bs-toggle="modal" data-bs-target="#exampleModal"><img src="../../../assets/img/Add Room.png" alt="add Room" href=""></a>
+</div>
+      
+    <div class="me-5 " style="display: flex; justify-content: center;align-items: center;padding-top: 20px;">
+      <table class="mb-3" style="position: relative;left: 110px;">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Description</th>
+              <th>Address</th>
+              <th>Administrador</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          
+          <tbody>
+            <tr *ngFor="let hotel of hotels | search:search">
+                <td>{{hotel.name}}</td>
+                <td>{{hotel.description}}</td>
+                <td>{{hotel.address}}</td>
+                <td>{{hotel.administrator.name}}</td>
+                <td>
+                    <button (click)="getHotel(hotel._id)" type="button" class="btn button dorado me-2" data-bs-toggle="offcanvas"
+                      data-bs-target="#offcanvas" aria-controls="offcanvas">Editar</button>
+                    <button (click)="deleteHotel(hotel._id)" type="button" class="btn button cafe">Eliminar</button>
+                </td>
+            </tr>
+        <tbody>
+      </table>
+    </div>
+
+    <div class="modal" tabindex="-1" id="exampleModal" data-bs-backdrop="false" position="fixed" >
+      <div class="modal-dialog">
+        <div class="modal-content" style="background-color: #F5F6F7;">
+          <div class="modal-body">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvas" aria-labelledby="offcanvasLabel" style="background-color: #F5F6F7;">
+      <div class="offcanvas-header">
+        <h2 class="offcanvas-title" id="offcanvasLabel">Update Hotel</h2>
+        <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+      </div>
+      <div class="offcanvas-body">
+        <form (ngSubmit)="updateHotel()" *ngIf="hotelUpdate" >
+          <div class="form-group mb-3">
+            <label  class="form-label ">Name</label>
+            <input [(ngModel)]="hotelUpdate.name"  name="name" id="inputEmail" type="text"  required="" autofocus="" class="form-control rounded-pill border-0 shadow-sm px-4">
+          </div>
+          <div class="form-group mb-3">
+            <label  class="form-label">Description</label>
+            <input  [(ngModel)]="hotelUpdate.description"  name="description" id="inputPassword" type="text"  required="" class="form-control rounded-pill border-0 shadow-sm px-4 ">
+          </div>
+          <button type="button" class="btn btn-secondary me-3" data-bs-dismiss="offcanvas" aria-label="Close">Close</button>
+                <button type="button" type="submit" class="btn btn-primary" data-bs-dismiss="offcanvas" aria-label="Close">Save changes</button>
+      </form>
+      </div>
+    </div>
+    </body>

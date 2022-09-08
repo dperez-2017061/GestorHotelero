@@ -1,0 +1,25 @@
+<div class="body">
+    <h2>Available Rooms</h2>
+    <table class="fl-table">
+        <thead>
+            <tr>
+                <th>NoRoom</th>
+                <th>Description</th>
+                <th>Services</th>
+                <th>Type</th>
+                <th>Price</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let room of rooms">
+                <td>{{room.noRoom}}</td>
+                <td>{{room.description}}</td>
+                <td>
+                    <span *ngFor="let service of room.services">{{service.service}} </span>
+                </td>
+                <td>{{room.type}}</td>
+                <td>{{room.price}}</td>
+            </tr>
+        <tbody>
+    </table>
+</div>

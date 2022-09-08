@@ -1,0 +1,56 @@
+<div class="body">
+    <h2>Reservations</h2>
+    <table class="fl-table">
+        <thead>
+            <tr>
+                <th>User</th>
+                <th>StartDate</th>
+                <th>FinishDate</th>
+                <th>Status</th>
+                <th>Room</th>
+                <th>Total</th>
+                <th>Opciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let reservation of reservations">
+                <td>{{reservation.user.name}}</td>
+                <td>{{reservation.startDate}}</td>
+                <td>{{reservation.finishDate}}</td>
+                <td>{{reservation.status}} </td>
+                <td>{{reservation.room.noRoom}}</td>
+                <td>{{reservation.total}}</td>
+                <td>
+                    <button (click)="getReservation(reservation._id)" type="button" class="btn button dorado mb-2"
+                        data-bs-toggle="offcanvas" data-bs-target="#offcanvasExample"
+                        aria-controls="offcanvasExample">Editar</button>
+                    <button (click)="deleteReservation(reservation._id)" type="button"
+                        class="btn button cafe">Eliminar</button>
+                </td>
+            </tr>
+        <tbody>
+    </table>
+
+    <div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasExample" aria-labelledby="offcanvasExampleLabel">
+        <div class="offcanvas-header">
+            <h5 class="offcanvas-title" id="offcanvasExampleLabel">Update Reservation</h5>
+            <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body">
+            <form *ngIf="reservation" (ngSubmit)="updateReservation()">
+                <div class="mb-3">
+                    <label for="exampleInput1" class="form-label">StartDate</label>
+                    <input [(ngModel)]="reservation.startDate" name="startDate" type="datetime-local"
+                        class="form-control" id="exampleInput1">
+                </div>
+                <div class="mb-3">
+                    <label for="exampleInput2" class="form-label">FinishDate</label>
+                    <input [(ngModel)]="reservation.finishDate" name="finishDate" type="datetime-local"
+                        class="form-control" id="exampleInput2">
+                </div>
+                <button type="button" class="btn btn-secondary me-3" data-bs-dismiss="offcanvas"
+                    aria-label="Close">Close</button>
+                <button type="button" type="submit" class="btn btn-primary">Save changes</button>
+            </form>
+        </div>
+    </div>

@@ -1,0 +1,37 @@
+<body style="padding-top: 130px;">
+  <div class="d-flex head">
+    <form class="d-flex">
+        <input [(ngModel)]="search" name="search" class="form-control me-2" type="search" placeholder="Buscar" aria-label="Search">
+        <a class="boton dorado" type="submit">Buscar</a>
+    </form>
+    <h2>Hotels</h2>
+</div>
+      
+    <div class="me-5 " style="display: flex; justify-content: center;align-items: center;padding-top: 20px;">
+      <table class="mb-3" style="position: relative;left: 110px;">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Description</th>
+              <th>Dirección</th>
+              <th>Administrador</th>
+              <th>Opciones</th>
+            </tr>
+          </thead>
+          
+          <tbody>
+            <tr *ngFor="let viewhotel of viewHotels | search:search">
+                <td>{{viewhotel.name}}</td>
+                <td>{{viewhotel.description}}</td>
+                <td>{{viewhotel.address}}</td>
+                <td>{{viewhotel.administrator.name}}</td>
+                <td>
+                  <button [routerLink]="'/room/rooms/'+ viewhotel._id" type="button" class="btn button dorado mb-2" >Rooms</button>
+                  <button [routerLink]="'/event/events/'+viewhotel._id" type="button" class="btn button cafe">Events</button>
+                </td>
+            </tr>
+        <tbody>
+      </table>
+    </div>
+    </body>
+

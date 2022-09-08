@@ -1,0 +1,95 @@
+<div class="background">
+  <div class="body">
+    <div class="login-wrap">
+      <div class="login-html">
+        <input id="tab-1" type="radio" name="tab" class="sign-in" checked><label for="tab-1" class="tab">Sign In</label>
+        <input id="tab-2" type="radio" name="tab" class="sign-up"><label for="tab-2" class="tab">Sign Up</label>
+        <div class="login-form">
+          <div class="sign-in-htm">
+            <form (ngSubmit)="login()" #loginForm="ngForm">
+            <div class="group">
+              <label for="user" class="label">Username</label>
+              <input [(ngModel)]="userModel.username" name="username" id="user" type="text" class="input" required>
+            </div>
+            <div class="group">
+              <label for="pass" class="label">Password</label>
+              <input [(ngModel)]="userModel.password" name="password" id="pass" type="password" class="input" data-type="password" required>
+            </div>
+            <div class="group">
+              <input id="check" type="checkbox" class="check" checked>
+              <label for="check"><span class="icon"></span> Keep me Signed in</label>
+            </div>
+            <div class="group">
+              <input [disabled]="!loginForm.form.valid" type="submit" class="button" value="Sign In">
+            </div>
+            <div class="hr"></div>
+            <div class="foot-lnk">
+              <a href="#forgot">Forgot Password?</a>
+            </div>
+          </form>
+          </div>
+
+          <!-- Register -->
+
+          <form (ngSubmit)="register(registerForm)" #registerForm="ngForm" >
+          <div class="sign-up-htm">
+            
+            <div class="group">
+              <label for="user"  class="label">Name
+                <span *ngIf="!name.valid && name.touched" class="requiredField">
+                  *Required field
+                </span>
+              </label>
+              <input [(ngModel)]="user.name" #name="ngModel" name="name" id="user" type="text" class="input" required>
+            </div>
+            
+            <div class="group">
+              <label for="user"  class="label">Username
+                <span *ngIf="!username.valid && username.touched" class="requiredField">
+                  *Required field
+                </span>
+              </label>
+              <input [(ngModel)]="user.username" #username="ngModel" name="username" id="user" type="text" class="input" required>
+            </div>
+            
+            <div class="group">
+              <label for="pass" class="label">Email Address
+                <span *ngIf="!email.valid && email.touched" class="requiredField">
+                  *Required field
+                </span>
+              </label>
+              <input [(ngModel)]="user.email" #email="ngModel" name="email" id="pass" type="email" class="input" required>
+            </div>
+            
+            <div class="group">
+              <label for="pass" class="label">Password
+                <span *ngIf="!password.valid && password.touched" class="requiredField">
+                  *Required field
+                </span>
+              </label>
+              <input (keyup)="Cpass()" [(ngModel)]="user.password" #password="ngModel" name="password" id="pass" type="password" class="input" required>
+            </div>
+            
+              <div class="group">
+                
+                <label class="label" for="form3Example14cd">Repeat your password 
+                  <span *ngIf="!confirm.valid && confirm.touched" class="requiredField">
+                  *Required field
+                  </span>
+                </label>
+                <input (keyup)="checkPass()" [(ngModel)]="confirmPass" #confirm="ngModel" name="confirm" type="password" id="form3Example14cd" class="input" required/>
+              </div>
+            <div class="group">
+              <input [disabled]="!registerForm.form.valid || !pass" type="submit" class="button" value="Sign Up">
+            </div>
+            <div class="hr"></div>
+            <!-- <div class="foot-lnk">
+              <label for="tab-1">Already Member?</label>
+            </div> -->
+          </div>
+        </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

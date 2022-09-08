@@ -1,0 +1,47 @@
+<div class="body">
+    <div class="row d-flex justify-content-center align-items-center h-100">
+        <div class="col-lg-8 col-xl-6">
+            <div class="card rounded-3">
+                <img src="../../../assets/img/newhotel.jpg" class="w-100"
+                    style="border-top-left-radius: .3rem; border-top-right-radius: .3rem;" alt="Sample photo">
+                <div class="card-body p-4 p-md-5">
+                    <h3 class="mb-4 pb-2 pb-md-0 mb-md-5 px-md-2">Registration Info</h3>
+
+                    <form (ngSubmit)="createHotel(createHotelForm)" #createHotelForm="ngForm">
+
+                        <div class="input-group">
+                            <input [(ngModel)]="hotel.name" name="name" type="text"
+                                placeholder="Nombre del Hotel: Hotel Continental" class="input" required>
+                            <span class="border-bottom"></span>
+                        </div>
+
+                        <div class="input-group">
+                            <input [(ngModel)]="hotel.description" name="description" type="text"
+                                placeholder="Descripción: Para irse a descansar y olvidarse de la rutina" class="input"
+                                required>
+                            <span class="border-bottom"></span>
+                        </div>
+
+                        <div class="input-group">
+                            <input [(ngModel)]="hotel.address" name="address" type="text"
+                                placeholder="Dirección: Manhattan" class="input" required>
+                            <span class="border-bottom"></span>
+                        </div>
+
+                        <div class="input-group">
+                            <input [(ngModel)]="hotel.administrator" name="administrator" type="text"
+                                placeholder="Aministrador: Winston" class="input" required>
+                            <span class="border-bottom"></span>
+                        </div>
+
+                        <div class="button">
+                            <button type="submit" class="btn btn-success">Guardar</button>
+                        </div>
+
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

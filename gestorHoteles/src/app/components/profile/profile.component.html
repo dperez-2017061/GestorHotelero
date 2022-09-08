@@ -1,0 +1,18 @@
+<div class="body">
+<div *ngIf="user" class="login">
+    <div class="login-triangle"></div>
+
+    <h2 class="login-header">Profile</h2>
+
+    <form (ngSubmit)="updateUser()" class="login-container">
+        <label for="name">Name</label>
+        <p><input [(ngModel)]="user.name" name="name" id="name" type="text" placeholder="Name"></p>
+        <label for="username">Username</label>
+        <p><input [(ngModel)]="user.username" name="username" id="username" type="text" placeholder="Username"></p>
+        <label for="email">Email</label>
+        <p><input [(ngModel)]="user.email" name="email" id="email" type="email" placeholder="Email"></p>
+        <p><input class="mt-3" type="submit" value="Update Info"></p>
+        <p><input (click)="delete(user._id)" class="mt-3 red" type="button" value="Delete Account"></p>
+    </form>
+</div>
+</div>
